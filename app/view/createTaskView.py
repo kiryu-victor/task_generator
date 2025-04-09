@@ -28,10 +28,6 @@ class CreateTaskView(tk.Toplevel):
         self._create_buttons()
 
     # Callbacks for events
-    def set_on_task_selected(self, callback):
-        """Callback for a task selection"""
-        self._on_task_selected = callback
-
     def set_on_create_task(self, callback):
         """Callback for a click on the create task button"""
         self._on_create_task = callback

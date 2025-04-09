@@ -61,7 +61,6 @@ class MainView():
         self.button_frame.pack(fill=tk.X, side=tk.BOTTOM)
 
         # TODO: Find a way to make this less redundant
-        # TODO: Make it look better
         self.create_button = tk.Button(self.button_frame, text="Create task",
                 bg="green", font=('Arial', 20), padx=5, pady=5,
                 command=lambda: self._on_create_task() if self._on_create_task else None)

@@ -17,7 +17,6 @@ class DeleteTaskView(tk.Toplevel):
 		self.form_frame.pack(fill=tk.BOTH, expand=True)
 
 		# Callbacks
-		self._on_task_selected = None
 		self._on_delete_task = None
 
 		# Create the elements of the task deletion form

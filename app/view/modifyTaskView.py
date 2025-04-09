@@ -28,10 +28,6 @@ class ModifyTaskView(tk.Toplevel):
         self._create_buttons()
 
     # Callbacks for events
-    # def set_on_task_selected(self, callback):
-    #     """Callback for a task selection"""
-    #     self._on_task_selected = callback
-
     def set_on_modify_task(self, callback):
         """Callback for a click on the modify task button"""
         self._on_modify_task = callback

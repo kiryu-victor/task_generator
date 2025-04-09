@@ -61,9 +61,7 @@ class MainController:
         selected_item = self.view.tree.selection()
         if not selected_item:
             messagebox.showerror("Error", "No task selected")
-            return
-        else:
-            return selected_item
+        return selected_item or None
 
     # Visualize the tasks on the main window
     def add_task_to_view(self, task):
