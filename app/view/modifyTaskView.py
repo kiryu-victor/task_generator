@@ -28,9 +28,9 @@ class ModifyTaskView(tk.Toplevel):
         self._create_buttons()
 
     # Callbacks for events
-    def set_on_task_selected(self, callback):
-        """Callback for a task selection"""
-        self._on_task_selected = callback
+    # def set_on_task_selected(self, callback):
+    #     """Callback for a task selection"""
+    #     self._on_task_selected = callback
 
     def set_on_modify_task(self, callback):
         """Callback for a click on the modify task button"""
@@ -55,7 +55,7 @@ class ModifyTaskView(tk.Toplevel):
         self.machine_combo.grid(row=0, column=1, sticky=tk.EW, padx=5, pady=5)
 
         # Materials
-        # TODO: The materials available depend on the machine type selected
+        # The materials available depend on the machine type selected
         self.material_label = ttk.Label(self.form_frame, text="Material")
         self.material_label.grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
         self.material_combo = ttk.Combobox(self.form_frame)

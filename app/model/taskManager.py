@@ -44,9 +44,9 @@ class TaskManager:
     def delete_task(self, task_id):
         # Loop through the tasks
         for i, task in enumerate(self.tasks):
-            if task[0] == task_id:  # To find the task_id we want to modify
-                self.tasks.remove(i)
+            if task[0] == task_id:  # To find the task_id we want to delete
                 self.is_modified = True
+                del self.tasks[i]
                 break
 
     def get_tasks(self):
