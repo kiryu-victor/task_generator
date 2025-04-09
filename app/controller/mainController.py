@@ -35,22 +35,27 @@ class MainController:
     def open_modify_task_view(self):
         """Open the modify task window"""
         selected_item = self.select_item()
-        
-        task_index = self.view.tree.index(selected_item[0])
-        task = self.task_manager.tasks[task_index]
-        
-        modify_view = ModifyTaskView(self.view.window, task)
-        ModifyTaskController(modify_view, self.task_manager, task_index, self.modify_task_in_view)
+        if not selected_item:
+            return
+        else:        
+            task_index = self.view.tree.index(selected_item[0])
+            task = self.task_manager.tasks[task_index]
+            
+            modify_view = ModifyTaskView(self.view.window, task)
+            ModifyTaskController(modify_view, self.task_manager, task_index, self.modify_task_in_view)
 
     def open_delete_task_view(self):
         """Open the delete task window"""
         selected_item = self.select_item()
 
-        task_index = self.view.tree.index(selected_item[0])
-        task = self.task_manager.tasks[task_index]
+        if not selected_item:
+            return
+        else: 
+            task_index = self.view.tree.index(selected_item[0])
+            task = self.task_manager.tasks[task_index]
 
-        delete_view = DeleteTaskView(self.view.window, task)
-        DeleteTaskController(delete_view, self.task_manager, task_index, self.delete_task_in_view)
+            delete_view = DeleteTaskView(self.view.window, task)
+            DeleteTaskController(delete_view, self.task_manager, task_index, self.delete_task_in_view)
 
     def select_item(self):
         selected_item = self.view.tree.selection()
