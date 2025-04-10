@@ -1,14 +1,18 @@
 import tkinter as tk
 from tkinter import ttk
+from utils.utils import Utils
 
 class CreateTaskView(tk.Toplevel):
     def __init__(self, root):
         """Create a new window for creating tasks"""
         super().__init__(root)
         self.title("Create task")
-        self.geometry("400x300")
+        self.geometry("260x180")
         self.resizable(False, False)
-        
+
+        # Center the window on the screen
+        Utils.center_window_on_screen(self, 260, 180)
+
         # Make the window modal
         self.grab_set()
         self.transient(root)
@@ -43,7 +47,7 @@ class CreateTaskView(tk.Toplevel):
         # Machine type
         self.machine_label = ttk.Label(self.form_frame, text="Machine")
         self.machine_label.grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
-        self.machine_combo = ttk.Combobox(self.form_frame,
+        self.machine_combo = ttk.Combobox(self.form_frame, state="readonly",
                 values=["Machine A", "Machine B", "Machine C"])
         self.machine_combo.bind("<<ComboboxSelected>>",
                 lambda e: self._on_machine_type_change(self.machine_combo.get())
@@ -51,10 +55,10 @@ class CreateTaskView(tk.Toplevel):
         self.machine_combo.grid(row=0, column=1, sticky=tk.EW, padx=5, pady=5)
 
         # Materials
-        # TODO: The materials available depend on the machine type selected
+        # The materials available depend on the machine type selected
         self.material_label = ttk.Label(self.form_frame, text="Material")
         self.material_label.grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
-        self.material_combo = ttk.Combobox(self.form_frame)
+        self.material_combo = ttk.Combobox(self.form_frame, state="readonly",)
         self.material_combo.grid(row=1, column=1, sticky=tk.EW, padx=5, pady=5)
 
         # Speed (RPM)
@@ -73,15 +77,19 @@ class CreateTaskView(tk.Toplevel):
     def _create_buttons(self):
         """Create the buttons for the task creation form"""
         # Create a frame for buttons
-        self.button_frame = ttk.Frame(self.form_frame, padding=10)
-        self.button_frame.grid(row=3, column=0, columnspan=2, sticky=tk.EW)
+        self.button_frame = ttk.Frame(self.form_frame)
+        self.button_frame.grid(row=3, column=0, columnspan=2, sticky=tk.EW, pady=10)
 
         # Accept task creation button
-        self.create_button = ttk.Button(self.form_frame, text="Accept",
+        self.create_button = tk.Button(self.button_frame, text="Accept",
+                font=("Arial", 16), pady=10, bg="#7fff69",
                 command=lambda: self._on_create_task()
                         if self._on_create_task else None)
-        self.create_button.grid(row=4, column=0, sticky=tk.EW, padx=5, pady=5)
         # Cancel task creation button
-        self.cancel_button = ttk.Button(self.form_frame, text="Cancel",
+        self.cancel_button = tk.Button(self.button_frame, text="Cancel",
+                font=("Arial", 16), pady=10,
                 command=self.destroy)
-        self.cancel_button.grid(row=4, column=1, sticky=tk.EW, padx=5, pady=5)
+
+        # Pack buttons
+        self.create_button.pack(side=tk.LEFT, padx=5)
+        self.cancel_button.pack(side=tk.RIGHT, padx=5)

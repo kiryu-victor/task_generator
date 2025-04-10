@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+from utils.utils import Utils
+
 
 class MainView():
     def __init__(self, root):
@@ -7,6 +9,9 @@ class MainView():
         self.window.title("Main View")
         self.window.geometry("1000x600")
         self.window.resizable(False, False)
+
+        # Center the window on the screen
+        Utils.center_window_on_screen(self.window, 1000, 600)
 
         # Create a frame for the main view
         self.main_frame = ttk.Frame(self.window, padding=10)
@@ -57,25 +62,28 @@ class MainView():
     # Buttons for creating, modifying, and deleting tasks
     def _create_buttons(self):
         # Create a frame for buttons
-        self.button_frame = ttk.Frame(self.main_frame, padding=10)
+        self.button_frame = ttk.Frame(self.main_frame, padding=5)
         self.button_frame.pack(fill=tk.X, side=tk.BOTTOM)
 
         # TODO: Find a way to make this less redundant
         self.create_button = tk.Button(self.button_frame, text="Create task",
-                bg="green", font=('Arial', 20), padx=5, pady=5,
-                command=lambda: self._on_create_task() if self._on_create_task else None)
+                bg="#7fff69", font=("Arial", 20),
+                command=lambda: self._on_create_task()
+                        if self._on_create_task else None)
 
         self.modify_button = tk.Button(self.button_frame, text="Modify task",
-                bg="yellow", font=('Arial', 20), padx=5, pady=5,
-                command=lambda: self._on_modify_task() if self._on_modify_task else None)
+                bg="#ffcf69", font=("Arial", 20),
+                command=lambda: self._on_modify_task()
+                        if self._on_modify_task else None)
         
         self.delete_button = tk.Button(self.button_frame, text="Delete task",
-                bg="red", font=('Arial', 20), padx=5, pady=5,
-                command=lambda: self._on_delete_task() if self._on_delete_task else None)
+                bg="#ff6973", font=("Arial", 20),
+                command=lambda: self._on_delete_task()
+                        if self._on_delete_task else None)
 
         # Pack buttons
-        self.create_button.pack(side=tk.LEFT, padx=5)
-        self.modify_button.pack(side=tk.LEFT, padx=5, expand=True)  # Expand to fill space (center)
+        self.create_button.pack(side=tk.LEFT, padx=0)
+        self.modify_button.pack(side=tk.LEFT, padx=0, expand=True)  # Expand to fill space (center)
         self.delete_button.pack(side=tk.RIGHT, padx=5)
 
 

@@ -7,12 +7,17 @@ class ModifyTaskController:
         self.task_index = task_index
         self.modify_task_callback = modify_task_callback
 
+        # Get the task that we selected
+        task = self.task_manager.tasks[task_index]
+        # Set the old values on the modify menu
+        self.view.set_old_values(task[2], task[3], task[4])
+
         self.view.set_on_modify_task(self._modify_task)
         self.view.set_on_machine_type_change(self._on_machine_type_change)
 
     # Modify a task that has been selected
     def _modify_task(self):
-        """Modifty the selected task"""
+        """Modify the selected task"""
         machine = self.view.machine_combo.get()
         material = self.view.material_combo.get()
         speed = self.view.speed_entry.get()
