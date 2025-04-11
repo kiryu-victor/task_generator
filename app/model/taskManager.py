@@ -29,6 +29,31 @@ class TaskManager:
             except Exception as e:
                 print(f"An error occurred while saving tasks: {e}")
 
+    def sort_tasks(self, column, ascending=True):
+        """Sort the table by the name"""
+        # Columns mapped to their indices
+        column_indices = {
+            "Task ID": 0,
+            "Time": 1,
+            "Machine": 2,
+            "Material": 3,
+            "Speed": 4,
+            "Status": 5
+        }
+        
+        column_index = column_indices[column]
+
+        # Sorting
+        try:
+            sorted_tasks = sorted(
+                self.tasks, # Sort the tasks
+                key=lambda task: task[column_index],    # By their index
+                reverse=not ascending   # In the order indicated by ascending
+            )
+            return sorted_tasks
+        except IndexError:
+            raise ValueError(f"Index {column_index} out of range")
+
     def add_task(self, task):
         self.tasks.append(task)
         self.is_modified = True

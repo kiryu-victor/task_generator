@@ -22,6 +22,7 @@ class MainView():
         self._on_task_selected = None
         self._on_modify_task = None
         self._on_delete_task = None
+        self._on_column_click = None
 
         # Create the elements of the main view
         self._create_table()
@@ -34,12 +35,18 @@ class MainView():
         self.tree = ttk.Treeview(self.main_frame, columns=columns, show="headings")
         
         # Headings
-        self.tree.heading("Task ID", text="Task ID")
-        self.tree.heading("Time", text="Time")
-        self.tree.heading("Machine", text="Machine")
-        self.tree.heading("Material", text="Material")
-        self.tree.heading("Speed", text="Speed")
-        self.tree.heading("Status", text="Status")
+        self.tree.heading("Task ID", text="Task ID",
+                command=lambda: self.on_column_click("Task ID"))
+        self.tree.heading("Time", text="Time",
+                command=lambda: self.on_column_click("Time"))
+        self.tree.heading("Machine", text="Machine",
+                command=lambda: self.on_column_click("Machine"))
+        self.tree.heading("Material", text="Material",
+                command=lambda: self.on_column_click("Material"))
+        self.tree.heading("Speed", text="Speed",
+                command=lambda: self.on_column_click("Speed"))
+        self.tree.heading("Status", text="Status",
+                command=lambda: self.on_column_click("Status"))
 
         # Column widths
         self.tree.column("Task ID", width=100)
@@ -90,6 +97,10 @@ class MainView():
     # Fill the table with data
     def populate_table(self, tasks):
         """Populate the table with the tasks"""
+        # Clear previous values
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        # Add the tasks
         for task in tasks:
             self.tree.insert("", tk.END, values=task)
 
@@ -112,6 +123,11 @@ class MainView():
                 self.tree.delete(item)
                 break
 
+    # Sort the data on the table
+    def on_column_click(self, column):
+        if self._on_column_click:
+            self._on_column_click(column)
+
 
     # Callbacks for button clicks
     def set_on_create_task(self, callback):
@@ -122,3 +138,6 @@ class MainView():
 
     def set_on_delete_task(self, callback):
         self._on_delete_task = callback
+
+    def set_on_column_click(self, callback):
+        self._on_column_click = callback

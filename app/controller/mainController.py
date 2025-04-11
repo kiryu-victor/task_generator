@@ -12,12 +12,14 @@ class MainController:
     def __init__(self, view):
         self.view = view
         self.task_manager = TaskManager()
+        self.sort_order = {}
 
         self._load_tasks_from_task_manager()
 
         self.view.set_on_create_task(self.open_create_task_view)
         self.view.set_on_modify_task(self.open_modify_task_view)
         self.view.set_on_delete_task(self.open_delete_task_view)
+        self.view.set_on_column_click(self.sort_table_by_column)
 
     # Load the tasks from the CSV
     def _load_tasks_from_task_manager(self):
@@ -62,6 +64,15 @@ class MainController:
         if not selected_item:
             messagebox.showerror("Error", "No task selected")
         return selected_item or None
+
+    # Sort the table by the column
+    def sort_table_by_column(self, column):
+        """Sort table by the column (ascending and descending)"""
+        # Toggle
+        self.sort_order[column] = not self.sort_order.get(column, False)
+        sorted_tasks = self.task_manager.sort_tasks(column, self.sort_order[column])
+        self.view.populate_table(sorted_tasks)
+
 
     # Visualize the tasks on the main window
     def add_task_to_view(self, task):
