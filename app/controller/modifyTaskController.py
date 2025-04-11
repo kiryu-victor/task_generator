@@ -1,4 +1,5 @@
 from tkinter import messagebox
+from utils.utils import Utils
 
 class ModifyTaskController:
     def __init__(self, view, task_manager, task_index, modify_task_callback):
@@ -22,27 +23,31 @@ class ModifyTaskController:
         material = self.view.material_combo.get()
         speed = self.view.speed_entry.get()
 
-        if not machine or not material or not speed:
-            messagebox.showerror("Error", "There should be no empty fields.")
-            return
+        if self._validate_inputs(machine, material, speed):
+            # Update the values
+            modified_task = [
+                self.task_manager.tasks[self.task_index][0],    # Index
+                self.task_manager.tasks[self.task_index][1],    # Start time
+                machine,
+                material,
+                speed,
+                self.task_manager.tasks[self.task_index][5],    # Status            
+            ]
 
-        # Update the values
-        modified_task = [
-            self.task_manager.tasks[self.task_index][0],    # Index
-            self.task_manager.tasks[self.task_index][1],    # Start time
-            machine,
-            material,
-            speed,
-            self.task_manager.tasks[self.task_index][5],    # Status            
-        ]
+            task_id = self.task_manager.tasks[self.task_index][0]
+            self.task_manager.modify_task(task_id, modified_task)
 
-        task_id = self.task_manager.tasks[self.task_index][0]
-        self.task_manager.modify_task(task_id, modified_task)
+            self.modify_task_callback(task_id, modified_task)
 
-        self.modify_task_callback(task_id, modified_task)
+            messagebox.showinfo("Success", "Task modified successfully!")
+            self.view.destroy()
 
-        messagebox.showinfo("Success", "Task modified successfully!")
-        self.view.destroy()
+    def _validate_inputs(self, machine, material, speed):
+        """Check if the values aren't empty"""
+        is_valid, error_message = Utils.validate_inputs(machine, material, speed)
+        if not is_valid:
+            messagebox.showerror("Input error", error_message)
+        return is_valid
 
     # Modify the materials depending on the machine
     def _on_machine_type_change(self, machine_type):

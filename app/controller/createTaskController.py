@@ -1,4 +1,5 @@
 from tkinter import messagebox
+from utils.utils import Utils
 
 from datetime import datetime as dt
 
@@ -14,13 +15,12 @@ class CreateTaskController:
     # Generate a new task when the button is pressed
     def _create_task(self):
         """Create a new task on the press of the button and after confirmation"""
+        # Ge the fields values
+        machine = self.view.machine_combo.get()
+        material = self.view.material_combo.get()
+        speed = self.view.speed_entry.get()
         # Validate the inputs before creating the task
-        if not self._validate_inputs():
-            # Get the values from the view
-            machine = self.view.machine_combo.get()
-            material = self.view.material_combo.get()
-            speed = self.view.speed_entry.get()
-            
+        if self._validate_inputs(machine, material, speed):
             # Create a new task model instance and set its attributes
             task = [
                 dt.now().strftime('%Y%m%d-%H%M%S'),
@@ -41,25 +41,15 @@ class CreateTaskController:
             self.view.machine_combo.set("")
             self.view.material_combo.set("")
             self.view.speed_entry.delete(0, 'end')
-        else:
-            # If validation fails, show an error message
-            self._validate_input_which()
+            
+            self.view.destroy()
 
-    def _validate_inputs(self):
+    def _validate_inputs(self, machine, material, speed):
         """Check if the values aren't empty"""
-        if not self.view.machine_combo.get() or not self.view.material_combo.get() or not self.view.speed_entry.get():
-            return True
-        else:
-            return False
-        
-    def _validate_input_which(self):
-        """Check each input field and prompt a message accordingly"""
-        if not self.view.machine_combo.get():
-            messagebox.showerror("Error", "There is no machine type specified.")
-        elif not self.view.material_combo.get():
-            messagebox.showerror("Error", "Select a material.")
-        elif not self.view.speed_entry.get():
-            messagebox.showerror("Error", "No cutting speed is specified.")
+        is_valid, error_message = Utils.validate_inputs(machine, material, speed)
+        if not is_valid:
+            messagebox.showerror("Input error", error_message)
+        return is_valid
 
     def _on_machine_type_change(self, machine_type):
         """Modify the materials according to the machine type selected"""
