@@ -55,7 +55,8 @@ class ModifyTaskView(tk.Toplevel):
         self.old_values_label.grid(row=0, column=1, sticky=tk.W, padx=5, pady=5)
         # Vertical separator between the old and new values
         ttk.Separator(self.form_frame, orient="vertical").grid(row=0, column=2,
-                rowspan=4, sticky=tk.NS)
+                rowspan=4, sticky=tk.NS
+		)
         self.new_values_label = ttk.Label(self.form_frame, text="New value")
         self.new_values_label.grid(row=0, column=3, sticky=tk.E, padx=5, pady=5)
         
@@ -67,10 +68,12 @@ class ModifyTaskView(tk.Toplevel):
         self.machine_old_value.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
 
         self.machine_combo = ttk.Combobox(self.form_frame, state="readonly",
-                values=["Machine A", "Machine B", "Machine C"])
+                values=["Machine A", "Machine B", "Machine C"]
+		)
         self.machine_combo.bind("<<ComboboxSelected>>",
                 lambda e: self._on_machine_type_change(self.machine_combo.get())
-                        if self._on_machine_change else None)        
+                        if self._on_machine_change else None
+		)        
         self.machine_combo.grid(row=1, column=3, sticky=tk.EW, padx=5, pady=5)
 
         # Materials
@@ -110,12 +113,14 @@ class ModifyTaskView(tk.Toplevel):
         self.modify_button = tk.Button(self.button_frame, text="Modify",
                 font=("Arial", 18), padx=5, pady=5, bg="#ffcf69",
                 command=lambda: self._on_modify_task()
-                        if self._on_modify_task else None)
+                        if self._on_modify_task else None
+		)
         
         # Cancel task modification button
         self.cancel_button = tk.Button(self.button_frame, text="Cancel",
                 font=("Arial", 18), padx=5, pady=5,
-                command=self.destroy)
+                command=self.destroy
+		)
 
         # Pack buttons
         self.modify_button.pack(side=tk.LEFT, padx=5)

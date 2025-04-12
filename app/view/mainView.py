@@ -57,13 +57,14 @@ class MainView():
         self.tree.column("Status", width=100)
 
         # Add a scrollbar
-        self.scrollbar = ttk.Scrollbar(self.tree, orient=tk.VERTICAL, command=self.tree.yview)
+        self.scrollbar = ttk.Scrollbar(self.tree, orient=tk.VERTICAL,
+                command=self.tree.yview
+        )
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.tree.configure(yscrollcommand=self.scrollbar.set)
         
         # Add the table to the main frame
         self.tree.pack(fill=tk.BOTH, expand=True)
-
 
 
     # Buttons for creating, modifying, and deleting tasks
@@ -76,21 +77,25 @@ class MainView():
         self.create_button = tk.Button(self.button_frame, text="Create task",
                 bg="#7fff69", font=("Arial", 20),
                 command=lambda: self._on_create_task()
-                        if self._on_create_task else None)
+                        if self._on_create_task else None
+        )
 
         self.modify_button = tk.Button(self.button_frame, text="Modify task",
                 bg="#ffcf69", font=("Arial", 20),
                 command=lambda: self._on_modify_task()
-                        if self._on_modify_task else None)
+                        if self._on_modify_task else None
+        )
         
         self.delete_button = tk.Button(self.button_frame, text="Delete task",
                 bg="#ff6973", font=("Arial", 20),
                 command=lambda: self._on_delete_task()
-                        if self._on_delete_task else None)
+                        if self._on_delete_task else None
+        )
 
         # Pack buttons
         self.create_button.pack(side=tk.LEFT, padx=0)
-        self.modify_button.pack(side=tk.LEFT, padx=0, expand=True)  # Expand to fill space (center)
+        # Expand to fill space (center)
+        self.modify_button.pack(side=tk.LEFT, padx=0, expand=True)
         self.delete_button.pack(side=tk.RIGHT, padx=5)
 
 

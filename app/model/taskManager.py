@@ -9,25 +9,32 @@ class TaskManager:
     def _load_tasks_from_csv(self):
         """Load the tasks from the CSV file"""
         try:
+            # Open the file in read mode
             with open(self.csv_path, mode="r") as file:
                 reader = csv.reader(file)
+                # Return a row for each row
                 return [row for row in reader]
         except FileNotFoundError:
             print("File not found. Please check the file path.")
             return []
-        except Exception as e:
-            print(f"An error occurred: {e}")
+        except csv.Error as e:
+            print(f"CSV error ocurred while loading the tasks: {e}")
+        except IOError as e:
+            print(f"IO error occurred while loading the tasks: {e}")
 
     def _save_tasks_to_csv(self):
         """Save the tasks to the CSV file"""
         if self.is_modified:
             try:
+                # Open the file in write mode
                 with open(self.csv_path, mode="w", newline='') as file:
                     writer = csv.writer(file)
                     writer.writerows(self.tasks)
                 self.is_modified = False
-            except Exception as e:
-                print(f"An error occurred while saving tasks: {e}")
+            except csv.Error as e:
+                print(f"CSV error occurred while saving tasks: {e}")
+            except IOError as e:
+                print(f"IO error occurred while saving tasks: {e}")
 
     def sort_tasks(self, column, ascending=True):
         """Sort the table by the name"""

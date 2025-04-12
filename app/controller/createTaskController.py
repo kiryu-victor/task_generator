@@ -14,7 +14,8 @@ class CreateTaskController:
 
     # Generate a new task when the button is pressed
     def _create_task(self):
-        """Create a new task on the press of the button and after confirmation"""
+        """Create a new task on the press of the button
+        and after confirmation"""
         # Ge the fields values
         machine = self.view.machine_combo.get()
         material = self.view.material_combo.get()
@@ -46,7 +47,9 @@ class CreateTaskController:
 
     def _validate_inputs(self, machine, material, speed):
         """Check if the values aren't empty"""
-        is_valid, error_message = Utils.validate_inputs(machine, material, speed)
+        is_valid, error_message = Utils.validate_inputs(
+                machine, material, speed
+        )
         if not is_valid:
             messagebox.showerror("Input error", error_message)
         return is_valid

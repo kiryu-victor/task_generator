@@ -44,7 +44,9 @@ class ModifyTaskController:
 
     def _validate_inputs(self, machine, material, speed):
         """Check if the values aren't empty"""
-        is_valid, error_message = Utils.validate_inputs(machine, material, speed)
+        is_valid, error_message = Utils.validate_inputs(
+                machine, material, speed
+        )
         if not is_valid:
             messagebox.showerror("Input error", error_message)
         return is_valid
