@@ -8,11 +8,11 @@ class ModifyTaskView(tk.Toplevel):
         """Create a new window for modifying tasks"""
         super().__init__(root)
         self.title("Modify task")
-        self.geometry("360x240")
+        self.geometry("420x240")
         self.resizable(False, False)
         
         # Center the window on the screen
-        Utils.center_window_on_screen(self, 360, 240)
+        Utils.center_window_on_screen(self, 420, 240)
 
         # Create a modal window
         self.grab_set()
@@ -26,6 +26,7 @@ class ModifyTaskView(tk.Toplevel):
         # Callbacks
         self._on_modify_task = None
         self._on_machine_change = None
+        self._on_material_change = None
 
         # Create the elements of the task creation form
         self._create_form_elements()
@@ -40,6 +41,9 @@ class ModifyTaskView(tk.Toplevel):
         """ Callback for the machine type change."""
         self._on_machine_change = callback
 
+    def set_on_material_change(self, callback):
+        """Callback for the material change."""
+        self._on_material_change = callback
 
     # Create the elements for the modification menu
     def _create_form_elements(self):
@@ -49,13 +53,19 @@ class ModifyTaskView(tk.Toplevel):
         # Create a frame for the task creation form
         self.form_frame = ttk.Frame(self.main_frame, padding=10)
         self.form_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Configure columns so they stay fixed
+        self.form_frame.grid_columnconfigure(0, weight=0, minsize=80)
+        self.form_frame.grid_columnconfigure(1, weight=0, minsize=125)
+        self.form_frame.grid_columnconfigure(2, weight=0, minsize=10)
+        self.form_frame.grid_columnconfigure(3, weight=0, minsize=125)
         
         # Heading
         self.old_values_label = ttk.Label(self.form_frame, text="Old value")
-        self.old_values_label.grid(row=0, column=1, sticky=tk.W, padx=5, pady=5)
+        self.old_values_label.grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
         # Vertical separator between the old and new values
-        ttk.Separator(self.form_frame, orient="vertical").grid(row=0, column=2,
-                rowspan=4, sticky=tk.NS
+        ttk.Separator(self.form_frame, orient="vertical").grid(
+                row=0, column=2, rowspan=4, sticky=tk.NS
 		)
         self.new_values_label = ttk.Label(self.form_frame, text="New value")
         self.new_values_label.grid(row=0, column=3, sticky=tk.E, padx=5, pady=5)
@@ -67,9 +77,7 @@ class ModifyTaskView(tk.Toplevel):
         self.machine_old_value = ttk.Label(self.form_frame)
         self.machine_old_value.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
 
-        self.machine_combo = ttk.Combobox(self.form_frame, state="readonly",
-                values=["Machine A", "Machine B", "Machine C"]
-		)
+        self.machine_combo = ttk.Combobox(self.form_frame, state="readonly")
         self.machine_combo.bind("<<ComboboxSelected>>",
                 lambda e: self._on_machine_type_change(self.machine_combo.get())
                         if self._on_machine_change else None
@@ -85,9 +93,14 @@ class ModifyTaskView(tk.Toplevel):
         # The materials available depend on the machine type selected
         self.material_combo = ttk.Combobox(self.form_frame, state="readonly",)
         self.material_combo.grid(row=2, column=3, sticky=tk.EW, padx=5, pady=5)
+        # Bind material combo to material change event
+        self.material_combo.bind("<<ComboboxSelected>>",
+                lambda e: self._on_material_change(self.material_combo.get())
+                        if self._on_material_change else None
+        )
 
-        # Speed (RPM)
-        self.speed_label = ttk.Label(self.form_frame, text="Speed (RPM)")
+        # Speed (SMM)
+        self.speed_label = ttk.Label(self.form_frame, text="Speed (SMM)")
         self.speed_label.grid(row=3, column=0, sticky=tk.W, padx=5, pady=5)
 
         self.speed_old_value = ttk.Label(self.form_frame)
@@ -95,6 +108,11 @@ class ModifyTaskView(tk.Toplevel):
 
         self.speed_entry = ttk.Entry(self.form_frame)
         self.speed_entry.grid(row=3, column=3, sticky=tk.EW, padx=5, pady=5)
+
+        self.speed_range_label = ttk.Label(self.form_frame, text="")
+        self.speed_range_label.grid(
+                row=4, column=3, sticky=tk.EW, padx=5, pady=5,
+        )
 
     # On the event of the machine type being changed
     def _on_machine_type_change(self, event=None):
@@ -106,25 +124,25 @@ class ModifyTaskView(tk.Toplevel):
     def _create_buttons(self):
         """Create the buttons for the task creation form"""
         # Create a frame for buttons
-        self.button_frame = ttk.Frame(self.main_frame, padding=10)
+        self.button_frame = ttk.Frame(self.main_frame)
         self.button_frame.pack(fill=tk.X, side=tk.BOTTOM) # , expand=True
 
         # Accept task modification button
         self.modify_button = tk.Button(self.button_frame, text="Modify",
-                font=("Arial", 18), padx=5, pady=5, bg="#ffcf69",
+                font=("Arial", 18), padx=10, pady=5, bg="#ffcf69",
                 command=lambda: self._on_modify_task()
                         if self._on_modify_task else None
 		)
         
         # Cancel task modification button
         self.cancel_button = tk.Button(self.button_frame, text="Cancel",
-                font=("Arial", 18), padx=5, pady=5,
+                font=("Arial", 18), padx=10, pady=5,
                 command=self.destroy
 		)
 
         # Pack buttons
-        self.modify_button.pack(side=tk.LEFT, padx=5)
-        self.cancel_button.pack(side=tk.RIGHT, padx=10)
+        self.modify_button.pack(side=tk.LEFT, padx=15)
+        self.cancel_button.pack(side=tk.RIGHT, padx=20)
 
 
     def set_old_values(self, machine, material, speed):

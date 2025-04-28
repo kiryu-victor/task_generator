@@ -1,0 +1,74 @@
+{
+    "machines": [
+        {
+            "name": "Carbide milling 1000",
+            "materials": [
+                "Aluminium",
+                "Brass",
+                "Ductile iron"
+            ]
+        },
+        {
+            "name": "Carbide milling 2000",
+            "materials": [
+                "Stainless steel",
+                "Titanium",
+                "Tool steel"
+            ]
+        },
+        {
+            "name": "HSS drill 3000",
+            "materials": [
+                "Aluminium",
+                "Brass",
+                "Stainless steel",
+                "Tool steel"
+            ]
+        }
+    ],
+
+    "materials": [
+        {
+            "name": "Aluminium",
+            "carbide_minSpeed": "213",
+            "carbide_maxSpeed": "304",
+            "hss_minSpeed": "91",
+            "hss_maxSpeed": "121"
+        },
+        {
+            "name": "Brass",
+            "carbide_minSpeed": "76",
+            "carbide_maxSpeed": "137",
+            "hss_minSpeed": "21",
+            "hss_maxSpeed": "76"
+        },
+        {
+            "name": "Ductile iron",
+            "carbide_minSpeed": "54",
+            "carbide_maxSpeed": "67",
+            "hss_minSpeed": "20",
+            "hss_maxSpeed": "25"
+        },
+        {
+            "name": "Stainless steel",
+            "carbide_minSpeed": "45",
+            "carbide_maxSpeed": "76",
+            "hss_minSpeed": "15",
+            "hss_maxSpeed": "20"
+        },
+        {
+            "name": "Titanium",
+            "carbide_minSpeed": "15",
+            "carbide_maxSpeed": "40",
+            "hss_minSpeed": "6",
+            "hss_maxSpeed": "15"
+        },
+        {
+            "name": "Tool steel",
+            "carbide_minSpeed": "15",
+            "carbide_maxSpeed": "45",
+            "hss_minSpeed": "6",
+            "hss_maxSpeed": "18"
+        }
+    ]
+}
