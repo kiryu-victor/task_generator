@@ -29,8 +29,13 @@ class Utils:
     def validate_inputs(self, machine, material, speed):
         """Validate that inputs are not empty and speed is a valid number"""
         # Check all the values are filled
-        if not machine or not material or not speed:
-            return False, Utils.validate_inputs_which(machine, material)
+        if not machine:
+            return False, "There is no machine type specified."
+        if not material:
+            return False, "Select a material."
+        if not speed:
+            return False, "No cutting speed is specified."
+        
         try:
             current_speed = int(speed)
         # If the value on the speed is not a number
@@ -53,14 +58,3 @@ class Utils:
                 break
 
         return True, None
-
-
-    @staticmethod
-    def validate_inputs_which(machine, material):
-        """Return the correspponding message based on the missing field"""
-        if not machine:
-            return "There is no machine type specified."
-        elif not material:
-            return "Select a material."
-        else:
-            return "No cutting speed is specified."

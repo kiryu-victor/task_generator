@@ -6,7 +6,8 @@
                 "Aluminium",
                 "Brass",
                 "Ductile iron"
-            ]
+            ],
+            "time": 70
         },
         {
             "name": "Carbide milling 2000",
@@ -14,7 +15,8 @@
                 "Stainless steel",
                 "Titanium",
                 "Tool steel"
-            ]
+            ],
+            "time": 66
         },
         {
             "name": "HSS drill 3000",
@@ -23,7 +25,8 @@
                 "Brass",
                 "Stainless steel",
                 "Tool steel"
-            ]
+            ],
+            "time": 63
         }
     ],
 

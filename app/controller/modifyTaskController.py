@@ -1,6 +1,7 @@
 from tkinter import messagebox
 from utils.utils import Utils
 
+
 class ModifyTaskController:
     def __init__(self, view, task_manager, task_index, modify_task_callback):
         self.view = view
@@ -14,7 +15,7 @@ class ModifyTaskController:
         # Get the task that we selected
         task = self.task_manager.tasks[task_index]
         # Set the old values on the modify menu
-        self.view.set_old_values(task[2], task[3], task[4])
+        self.view.set_old_values(task[2], task[3], task[4], task[5])
 
         self.view.set_on_modify_task(self._modify_task)
         self.view.set_on_machine_type_change(self._on_machine_type_change)
@@ -28,29 +29,38 @@ class ModifyTaskController:
 
     # Modify a task that has been selected
     def _modify_task(self):
-        """Modify the selected task"""
+        """Modify the selected task.
+        Validate if a task can be modified first.
+        Tasks that haven't started yet can be fully modified.
+        Tasks that are ongoing can only have speed modified (recalculated).
+        Tasks that are completed cannot be modified."""
         machine = self.view.machine_combo.get()
         material = self.view.material_combo.get()
         speed = self.view.speed_entry.get()
+        
+        # Get the status of the selected task
+        current_task = self.task_manager.tasks[self.task_index]
 
-        if self._validate_inputs(machine, material, speed):
-            # Update the values
-            modified_task = [
-                self.task_manager.tasks[self.task_index][0],    # Index
-                self.task_manager.tasks[self.task_index][1],    # Start time
-                machine,
-                material,
-                speed,
-                self.task_manager.tasks[self.task_index][5],    # Status            
-            ]
+        # Madify the parameters that can be changed depending on status     
+        # If it is ongoing task  
+        if current_task[5].isdigit():
+            current_task[4] = speed
+        # If it has not started yet
+        else:
+            current_task[2] = machine
+            current_task[3] = material
+            current_task[4] = speed
 
-            task_id = self.task_manager.tasks[self.task_index][0]
-            self.task_manager.modify_task(task_id, modified_task)
+        # Update the task in the model
+        task_id = current_task[0]
+        self.task_manager.modify_task(task_id, current_task)
 
-            self.modify_task_callback(task_id, modified_task)
+        # Update in on the view
+        self.modify_task_callback(task_id, current_task)
 
-            messagebox.showinfo("Success", "Task modified successfully!")
-            self.view.destroy()
+        # Modal window for success
+        messagebox.showinfo("Success", "Task modified.")
+        self.view.destroy()
 
     def _validate_inputs(self, machine, material, speed):
         """Check if the values aren't empty"""

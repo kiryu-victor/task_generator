@@ -10,8 +10,8 @@ class DeleteTaskController:
         # Get the task that we selected
         task = self.task_manager.tasks[task_index]
         # Set the old values on the modify menu
-        self.view.set_old_values(task[0], task[1], task[2], task[3],
-                task[4], task[5]
+        self.view.set_old_values(
+                task[0], task[1], task[2], task[3], task[4], task[5]
         )
 
         self.view.set_on_delete_task(self._delete_task)

@@ -22,21 +22,30 @@ class CreateTaskController:
     # Generate a new task when the button is pressed
     def _create_task(self):
         """Create a new task on the press of the button
-        and after confirmation"""
-        # Ge the fields values
+        and after confirmation."""
+        # Get the fields values
         machine = self.view.machine_combo.get()
         material = self.view.material_combo.get()
         speed = self.view.speed_entry.get()
         # Validate the inputs before creating the task
         if self._validate_inputs(machine, material, speed):
             # Create a new task model instance and set its attributes
+            # Get the time_left from config
+            time_left = next(
+                (
+                    machine_config["time"] for machine_config in self.config["machines"] if machine_config["name"] == machine
+                ), 0
+            )
+
+            # Create new task
             task = [
                 dt.now().strftime('%Y%m%d-%H%M%S'),
                 dt.now().strftime("%H:%M:%S"),
                 machine,
                 material,
                 speed,
-                "Pending"
+                "On queue",
+                time_left
             ]
             # Add it to the view
             self.task_manager.add_task(task)
@@ -44,6 +53,7 @@ class CreateTaskController:
             self.add_task_callback(task)
 
             messagebox.showinfo("Success", "Task created successfully!")
+            self.task_manager._save_tasks_to_csv()
 
             # Clear the input fields after task creation
             self.view.machine_combo.set("")
@@ -56,15 +66,16 @@ class CreateTaskController:
         """Check if the values aren't empty"""
         utils = Utils()
         is_valid, error_message = utils.validate_inputs(
-                machine, material, speed
+                machine,
+                material,
+                speed
         )
         if not is_valid:
             messagebox.showerror("Input error", error_message)
         return is_valid
 
     def _on_machine_type_change(self, machine_type):
-        """Modify the materials according to the machine type selected.
-        Data is changed on utils/config.json"""
+        """Modify the materials according to the machine type selected."""
         # Reset the values that could be set by the user
         self.view.material_combo.set("")
         self.view.speed_entry.delete(0)
@@ -77,13 +88,13 @@ class CreateTaskController:
                 break
 
     def _on_material_change(self, material_name):
-        """Modify the speed range according to the material selected.
-        Data is changed on utils/config.json"""
+        """Modify the speed range according to the material selected."""
         # Get the type of machine selected
         machine_type = self.view.machine_combo.get()
         
         for material in self.config["materials"]:
             if material["name"] == material_name:
+                # Set the speed range depending on the selected material
                 if "carbide" in machine_type.lower():
                     min_speed = material["carbide_minSpeed"]
                     max_speed = material["carbide_maxSpeed"]

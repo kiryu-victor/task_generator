@@ -79,7 +79,7 @@ class ModifyTaskView(tk.Toplevel):
 
         self.machine_combo = ttk.Combobox(self.form_frame, state="readonly")
         self.machine_combo.bind("<<ComboboxSelected>>",
-                lambda e: self._on_machine_type_change(self.machine_combo.get())
+                lambda e: self._on_machine_change(self.machine_combo.get())
                         if self._on_machine_change else None
 		)        
         self.machine_combo.grid(row=1, column=3, sticky=tk.EW, padx=5, pady=5)
@@ -114,12 +114,6 @@ class ModifyTaskView(tk.Toplevel):
                 row=4, column=3, sticky=tk.EW, padx=5, pady=5,
         )
 
-    # On the event of the machine type being changed
-    def _on_machine_type_change(self, event=None):
-        """Handle machine type change event."""
-        if self._on_machine_change:
-            self._on_machine_change(self.machine_combo.get())
-
     # Create buttosn after the form
     def _create_buttons(self):
         """Create the buttons for the task creation form"""
@@ -145,8 +139,24 @@ class ModifyTaskView(tk.Toplevel):
         self.cancel_button.pack(side=tk.RIGHT, padx=20)
 
 
-    def set_old_values(self, machine, material, speed):
+    def set_old_values(self, machine, material, speed, status):
         """Set the old values """
         self.machine_old_value.config(text=machine)
         self.material_old_value.config(text=material)
         self.speed_old_value.config(text=speed)
+
+        if status == "Completed":
+            # All fields are disabled
+            self.machine_combo["state"] = "disabled"
+            self.material_combo["state"] = "disabled"
+            self.speed_entry["state"] = "disabled"
+        elif status == "On queue":
+            # If the task is waiting on the queue
+            self.machine_combo["state"] = "readonly"
+            self.material_combo["state"] = "readonly"
+            self.speed_entry["state"] = "normal"
+        else:
+            # Ongoing task - Only speed can be changed
+            self.machine_combo["state"] = "disabled"
+            self.material_combo["state"] = "disabled"
+            self.speed_entry["state"] = "normal"

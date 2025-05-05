@@ -56,14 +56,6 @@ class MainView():
         self.tree.column("Speed", width=100)
         self.tree.column("Status", width=100)
 
-        # Add a scrollbar
-        self.scrollbar = ttk.Scrollbar(self.tree, orient=tk.VERTICAL,
-                command=self.tree.yview
-        )
-        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self.tree.configure(yscrollcommand=self.scrollbar.set)
-        
-        # Add the table to the main frame
         self.tree.pack(fill=tk.BOTH, expand=True)
 
 

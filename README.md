@@ -1,0 +1,68 @@
+## What is this?
+**This is a WIP project** consisting of a task manager for three milling machines, each one with some materials that the machine can work with, which operate within a range of speeds measured in SMM *(Surface Meters per Minute)*.
+**Bear in mind that for the purpose of this project the data is not realistic. This way each operation does not take too long and is easily understandable.**
+
+<hr>
+
+## How does it work?
+- The first window that appears is the one with the details of all the tasks. This can be sorted by column if the user wants to.
+  - It shows: ID (based on datetime), creation/modification time, machine, material, speed, status
+    - The "status" column can have the next values:
+      - "On queue" for tasks that are yet to start.
+      - A countdown to 0 when it is a ongoing task.
+      - "Completed" for tasks that have finished.
+- The "Create" button pops a modal window asking for machine, material and speed. The user has to fill the fields in that order because each machine has different material that it can work with. Those materials operate at certain speeds, that are checked in order to create the tasks successfuly.
+- The "Modify" button pops a modal window with the same fields, but it also shows a column with the old parameters for reference.
+  - "On queue" tasks can be modified completely (machine, material and speed).
+  - Ongoing tasks that have started can only have its speed modified.
+  - "Completed" tasks cannot be modified at all.
+- The "Delete" button does exactly that.
+
+<hr>
+
+## How is it made?
+**Tech used:** Python, venv, tkinter, CSV
+
+The TaskManager (model) class loads the CSV file with all the tasks. It handles creation, modification and deletion operations, saving them back to the CSV file. Until then, the tasks are stored in memory as a list of dictionaries they are sorted into machine-specific queues. It was made like this because it was going to be only one client.
+tkinter is used for the views (GUI). The MainView is the main window with all the tasks, and then each operation has its own class. The GUIs have buttons that let the user create, modify and delete tasks.
+The controllers (MainController, CreateTaskcontroller...) deal with the inputs, validate data and update the model and view.
+Utils is a folder that has utils.py, that serves to center the app on the screen and validate inputs, and config.json, that has the different machines, materials, speed ranges and ETCs that are used on the inputs.
+
+#### TLDR:
+ 1. Task are loaded from CSV on app start.
+ 2. TaskManager loads the data.
+ 3. The main view displays said data.
+ 4. User can create tasks or modify/delete a selected task (depending on status) by clicking on the buttons at the bottom.
+ 5. On the click of any of those buttons, a new view (or error message) opens.
+ 6. User inserts the inputs in order, which are validated later.
+ 7. Once it is done, the tasks is added/modified/deleted on the main view.
+ 8. On close, the CSV is saved again.
+
+<hr>
+
+## But... why?
+
+This project is the one that is gathering most of the things that I've learned by myself.
+I have been programming on Java since I started my regulated studies, but I want to try Python and explore the posibilities it has. With this I'm learning:
+
+- Python itself.
+- tkinter.
+- SQLite.
+- WebSocket updates.
+
+<hr>
+
+## To-do list
+
+- "Delete" should work only on "On queue" and ongoing tasks.
+  - "On queue": no issue.
+  - Ongoing:
+    - has to stop the countdown to avoid the completion of the task.
+    - has to trigger the next task in case of deletion. Otherwise the remaining countdown should continue as per normal.
+- Migrate to SQLite for WebSocket-based udpates (instead of polling or reading from a CSV).
+- Make different status easier to be seen changing the background of the rows:
+  - Green: "Completed"
+  - Blue: "On queue"
+  - ...
+- Add filters to every column (not only sorting).
+- Make it all prettier (not a priority now).

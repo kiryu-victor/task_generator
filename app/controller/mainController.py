@@ -15,6 +15,7 @@ class MainController:
         self.sort_order = {}
 
         self._load_tasks_from_task_manager()
+        self.update_view()
 
         self.view.set_on_create_task(self.open_create_task_view)
         self.view.set_on_modify_task(self.open_modify_task_view)
@@ -23,7 +24,7 @@ class MainController:
 
     # Load the tasks from the CSV
     def _load_tasks_from_task_manager(self):
-        """Load the tasks from the CSV file"""
+        """Load the tasks from the CSV file."""
         tasks = self.task_manager.get_tasks()
         self.view.populate_table(tasks)
 
@@ -32,28 +33,44 @@ class MainController:
     def open_create_task_view(self):
         """Open the create task window"""
         create_view = CreateTaskView(self.view.window)
-        CreateTaskController(create_view, self.task_manager,
+        CreateTaskController(
+                create_view,
+                self.task_manager,
                 self.add_task_to_view
         )
 
     def open_modify_task_view(self):
-        """Open the modify task window"""
+        """Open the modify task window.
+        - Note: completed tasks cannot be modified."""
         selected_item = self.select_item()
         if not selected_item:
             return None
-        else:        
-            task_index = self.view.tree.index(selected_item[0])
-            task = self.task_manager.tasks[task_index]
-            
-            modify_view = ModifyTaskView(self.view.window, task)
-            ModifyTaskController(modify_view, self.task_manager,
-                    task_index, self.modify_task_in_view
+        
+        task_index = self.view.tree.index(selected_item[0])
+        task = self.task_manager.tasks[task_index]
+
+        # If the task is completed, pop an error message
+        if task[5] == "Completed":
+            messagebox.showerror(
+                "Error",
+                "The selected task is completed and cannot be modified."
             )
+            return None
+
+        # Open the modify task view if the task is not completed
+        modify_view = ModifyTaskView(self.view.window, task)
+        ModifyTaskController(
+                modify_view,
+                self.task_manager,
+                task_index,
+                self.modify_task_in_view
+        )
 
     def open_delete_task_view(self):
-        """Open the delete task window"""
+        """Open the delete task window:
+        - First: user has to select a task for it to be deleted
+        """
         selected_item = self.select_item()
-
         if not selected_item:
             return None
         else: 
@@ -61,8 +78,11 @@ class MainController:
             task = self.task_manager.tasks[task_index]
 
             delete_view = DeleteTaskView(self.view.window, task)
-            DeleteTaskController(delete_view, self.task_manager,
-                    task_index, self.delete_task_in_view
+            DeleteTaskController(
+                    delete_view,
+                    self.task_manager,
+                    task_index,
+                    self.delete_task_in_view
             )
 
     def select_item(self):
@@ -71,12 +91,12 @@ class MainController:
             messagebox.showerror("Error", "No task selected")
         return selected_item or None
 
-    # Sort the table by the column
     def sort_table_by_column(self, column):
         """Sort table by the column (ascending and descending)"""
         # Toggle
         self.sort_order[column] = not self.sort_order.get(column, False)
-        sorted_tasks = self.task_manager.sort_tasks(column,
+        sorted_tasks = self.task_manager.sort_tasks(
+                column,
                 self.sort_order[column]
         )
         self.view.populate_table(sorted_tasks)
@@ -94,3 +114,10 @@ class MainController:
 
     def save_tasks_on_exit(self):
         self.task_manager.save_tasks()
+
+    def update_view(self):
+        """Update the view to show task updates"""
+        for task in self.task_manager.tasks:
+            self.view.modify_task_in_table(task[0], task)
+        # Keep updating every second
+        self.view.window.after(1000, self.update_view)

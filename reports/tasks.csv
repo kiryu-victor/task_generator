@@ -1,34 +1,12 @@
-20250409-120900,12:09:00,Machine B,Mat B1,12,Pending
-20250409-121044,12:10:44,Machine B,Mat B2,1,Pending
-20250409-121516,12:15:16,Machine B,Mat B2,1,Pending
-20250409-121654,12:16:54,Machine B,Mat B2,2,Pending
-20250409-121725,12:17:25,Machine A,Mat A2,3,Pending
-20250409-121845,12:18:45,Machine B,Mat B2,1,Pending
-20250409-122340,12:23:40,Machine C,Mat C2,1,Pending
-20250409-122650,12:26:50,Machine B,Mat B2,1,Pending
-20250409-122924,12:29:24,Machine A,Mat A2,2,Pending
-20250409-123032,12:30:32,Machine A,Mat A2,3,Pending
-20250409-130500,13:05:00,Machine A,Mat A1,3,Pending
-20250409-131000,13:10:00,Machine C,Mat C1,4,Pending
-20250409-131500,13:15:00,Machine B,Mat B2,5,Pending
-20250409-132000,13:20:00,Machine A,Mat A3,6,Pending
-20250409-132500,13:25:00,Machine C,Mat C3,7,Pending
-20250409-133000,13:30:00,Machine B,Mat B1,8,Pending
-20250409-133500,13:35:00,Machine A,Mat A2,9,Pending
-20250409-134000,13:40:00,Machine C,Mat C2,0,Pending
-20250409-134500,13:45:00,Carbide milling 2000,Stainless steel,55,Pending
-20250409-140000,14:00:00,Machine A,Mat A1,5,Pending
-20250409-140500,14:05:00,HSS drill 3000,Aluminium,111,Pending
-20250409-141000,14:10:00,Carbide milling 1000,Aluminium,222,Pending
-20250409-143500,14:35:00,Machine B,Mat B3,23457,Pending
-20250409-144000,14:40:00,Machine C,Mat C1,75674,Pending
-20250411-001304,00:13:04,Machine A,Mat A1,1234,Pending
-20250411-001741,00:17:41,Machine A,Mat A1,1,Pending
-20250411-003017,00:30:17,Machine A,Mat A1,112,Pending
-20250411-005026,00:50:26,Machine C,Mat C2,1,Pending
-20250411-011122,01:11:22,Machine A,Mat A1,111111111,Pending
-20250411-011242,01:12:42,Machine B,Mat B2,2,Pending
-20250411-200719,20:07:19,Machine A,Mat A1,21,Pending
-20250427-032613,03:26:13,Carbide milling 2000,Tool steel,15,Pending
-20250428-130430,13:04:30,Carbide milling 1000,Aluminium,111,Pending
-20250428-193956,19:39:56,Carbide milling 1000,Aluminium,233,Pending
+20250501-112849,11:28:49,Carbide milling 1000,Aluminium,222,Completed,0
+20250501-112857,11:28:57,Carbide milling 2000,Titanium,22,Completed,0
+20250501-112906,11:29:06,HSS drill 3000,Brass,22,Completed,0
+20250501-204717,20:47:17,Carbide milling 1000,Aluminium,222,Completed,0
+20250501-204726,20:47:26,Carbide milling 1000,Aluminium,233,Completed,0
+20250502-113354,11:33:54,HSS drill 3000,Brass,22,Completed,0
+20250502-113628,11:36:28,Carbide milling 2000,Stainless steel,55,Completed,0
+20250502-113825,11:38:25,Carbide milling 1000,Aluminium,222,Completed,0
+20250504-210620,21:06:20,Carbide milling 1000,Aluminium,222,Completed,0
+20250504-210932,21:09:32,Carbide milling 1000,Brass,122,Completed,0
+20250504-210939,21:09:39,Carbide milling 2000,Titanium,22,Completed,0
+20250505-125420,12:54:20,Carbide milling 1000,Aluminium,222,Completed,0

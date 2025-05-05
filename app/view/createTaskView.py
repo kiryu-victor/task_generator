@@ -51,8 +51,10 @@ class CreateTaskView(tk.Toplevel):
 		# Machine type
 		self.machine_label = ttk.Label(self.form_frame, text="Machine")
 		self.machine_label.grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
-		self.machine_combo = ttk.Combobox(self.form_frame, state="readonly",
-				values=["Machine A", "Machine B", "Machine C"]
+		self.machine_combo = ttk.Combobox(
+				self.form_frame,
+				state="readonly",
+				values=[]
 		)
 		self.machine_combo.bind("<<ComboboxSelected>>",
 				lambda e: self._on_machine_type_change(self.machine_combo.get())
