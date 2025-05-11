@@ -1,27 +1,34 @@
 from tkinter import messagebox
 
 class DeleteTaskController:
-    def __init__(self, view, task_manager, task_index, delete_task_callback):
+    def __init__(self, view, task_manager, task_id):
         self.view = view
         self.task_manager = task_manager
-        self.task_index = task_index
-        self.delete_task_callback = delete_task_callback
+        self.task_id = task_id
 
         # Get the task that we selected
-        task = self.task_manager.tasks[task_index]
-        # Set the old values on the modify menu
-        self.view.set_old_values(
-                task[0], task[1], task[2], task[3], task[4], task[5]
-        )
+        task = self.task_manager.read_task(task_id)
+        if not task:
+            messagebox.showerror("Error", "Task not found.")
+            self.view.destroy()
+            return
 
+        # Set the old values on the delete menu
+        self.view.set_old_values(
+                task.task_id,
+                task.timestamp_start,
+                task.machine,
+                task.material,
+                task.speed,
+                task.status
+        )
+        # Set the button the _delete_task method
         self.view.set_on_delete_task(self._delete_task)
+
 
     def _delete_task(self):
         """Delete the selected task"""
-        task_id = self.task_manager.tasks[self.task_index][0]
-        self.task_manager.delete_task(task_id)
-
-        self.delete_task_callback(task_id)
+        self.task_manager.delete_task(self.task_id)
 
         messagebox.showinfo("Success", "Task deleted successfully!")
         self.view.destroy()

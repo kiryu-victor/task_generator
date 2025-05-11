@@ -62,7 +62,7 @@ class ModifyTaskView(tk.Toplevel):
         
         # Heading
         self.old_values_label = ttk.Label(self.form_frame, text="Old value")
-        self.old_values_label.grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
+        self.old_values_label.grid(row=0, column=1, sticky=tk.W, padx=5, pady=5)
         # Vertical separator between the old and new values
         ttk.Separator(self.form_frame, orient="vertical").grid(
                 row=0, column=2, rowspan=4, sticky=tk.NS
@@ -138,6 +138,18 @@ class ModifyTaskView(tk.Toplevel):
         self.modify_button.pack(side=tk.LEFT, padx=15)
         self.cancel_button.pack(side=tk.RIGHT, padx=20)
 
+    # Gets & sets
+    def get_machine(self):
+        """Get the selected machine."""
+        return self.machine_combo.get()
+    
+    def get_material(self):
+        """Get the selected material."""
+        return self.material_combo.get()
+    
+    def get_speed(self):
+        """Get the selected speed."""
+        return self.speed_entry.get()
 
     def set_old_values(self, machine, material, speed, status):
         """Set the old values """
@@ -145,12 +157,8 @@ class ModifyTaskView(tk.Toplevel):
         self.material_old_value.config(text=material)
         self.speed_old_value.config(text=speed)
 
-        if status == "Completed":
-            # All fields are disabled
-            self.machine_combo["state"] = "disabled"
-            self.material_combo["state"] = "disabled"
-            self.speed_entry["state"] = "disabled"
-        elif status == "On queue":
+        # "Completed" status is taken care of on the main controller
+        if status == "On queue":
             # If the task is waiting on the queue
             self.machine_combo["state"] = "readonly"
             self.material_combo["state"] = "readonly"
