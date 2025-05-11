@@ -1,158 +1,153 @@
-from collections import defaultdict
-from threading import Timer
+import asyncio
+import json
+import websockets
 
-import csv
+from model.taskModel import TaskModel
 
 class TaskManager:
-    def __init__(self, csv_file_path="./reports/tasks.csv"):
-        self.csv_path = csv_file_path
-        self.tasks = self._load_tasks_from_csv()
-        self.is_modified = False
-        # New queue for each machine handled like a dictionary, where:
-            # keys = machine
-            # values = list of tasks on queue
-        self.machine_queues = defaultdict(list)
-        # Timer for each task
-        self.timer = {}
-
-    def _load_tasks_from_csv(self):
-        """Load the tasks from the CSV file"""
-        try:
-            # Open the file in read mode
-            with open(self.csv_path, mode="r") as file:
-                reader = csv.reader(file)
-                tasks = []
-                # Append each row (task) on tasks
-                for row in reader:
-                    if len(row) < 6:
-                        row.append("0")
-                    tasks.append(row)
-                return tasks
-        except FileNotFoundError:
-            print("File not found. Please check the file path.")
-            return []
-        except csv.Error as e:
-            print(f"CSV error ocurred while loading the tasks: {e}")
-        except IOError as e:
-            print(f"IO error occurred while loading the tasks: {e}")
-
-    def _save_tasks_to_csv(self):
-        """Save the tasks to the CSV file"""
-        if self.is_modified:
-            try:
-                # Open the file in write mode
-                with open(self.csv_path, mode="w", newline='') as file:
-                    writer = csv.writer(file)
-                    for task in self.tasks:
-                        if len(task) < 7:
-                            task.append("0")
-                        writer.writerow(task)
-                    self.is_modified = False
-            except csv.Error as e:
-                print(f"CSV error occurred while saving tasks: {e}")
-            except IOError as e:
-                print(f"IO error occurred while saving tasks: {e}")
+    def __init__(self, db_manager, websocket_server=None):
+        self.db_manager = db_manager
+        self.websocket_server = websocket_server
 
     def sort_tasks(self, column, ascending=True):
         """Sort the table by the name"""
         # Columns mapped to their indices
-        column_indices = {
-            "Task ID": 0,
-            "Time": 1,
-            "Machine": 2,
-            "Material": 3,
-            "Speed": 4,
-            "Status": 5
+        column_mapping = {
+            "Task ID": "task_id",
+            "Time": "timestamp_start",
+            "Machine": "machine",
+            "Material": "material",
+            "Speed": "speed",
+            "Status": "status",
+            "Time left": "time_left"
         }
         
-        column_index = column_indices[column]
+        if column not in column_mapping:
+            raise ValueError(f"Invalid column name: {column}")
 
-        # Sorting
+        # Get DB column name
+        db_column = column_mapping[column]
+
+        # Order
+        order = "ASC" if ascending else "DESC"
+
+        # Query to get and sort the tasks
+        query = f"SELECT * FROM tasks ORDER BY {db_column} {order}"
+        result = self.db_manager.execute_query(query)
+
+        return result
+
+    # CRUD methods
+    def create_task(self, task_model):
+        """Add the task to the database"""
         try:
-            sorted_tasks = sorted(
-                self.tasks, # Sort the tasks
-                key=lambda task: task[column_index],    # By their index
-                reverse=not ascending   # In the order indicated by ascending
-            )
-            return sorted_tasks
-        except IndexError:
-            raise ValueError(f"Index {column_index} out of range")
+            query = """
+                    INSERT INTO tasks (
+                        task_id,
+                        timestamp_start,
+                        machine,
+                        material,
+                        speed,
+                        status,
+                        time_left,
+                        expected_time
+                        )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """
+            self.db_manager.execute_query(query, task_model.to_tuple())
+            
+            # Notify the Webscoket clients
+            if self.websocket_server:
+                message = json.dumps({
+                        "action": "create",
+                        "task": task_model.to_tuple()
+                })
+                asyncio.create_task(self.websocket_server.broadcast(message))                
+        except Exception as e:
+            print(f"Error creating task: {e}")
+            raise RuntimeError("Failed to create the task")
 
-    def add_task(self, task):
-        """Add the task"""
-        machine = task[2]
-        if len(task) < 7:
-            task.append("0")
-        self.tasks.append(task)
-        self.is_modified = True
+    def read_task(self, task_id):
+        """Read a specified task"""
+        try:
+            query = "SELECT * FROM tasks WHERE task_id = ?"
+            result = self.db_manager.execute_query(query, (task_id,))
+            # return result
+            if result:
+                return TaskModel.from_tuple(result[0])
+            return None
+    
+        except Exception as e:
+            print(f"Error reading task: {e}")
+            raise RuntimeError("Failed to read the task")
 
-        # Add the task to the queue
-        self.machine_queues[machine].append(task)
+    def update_task(self, task_id, modified_fields_tuple):
+        """Modify the task on the database"""
+        try:
+            # Query updating the selected task
+            query = """
+                    UPDATE tasks
+                    SET machine = ?,
+                        material = ?,
+                        speed = ?
+                    WHERE task_id = ?
+                    """            
+            self.db_manager.execute_query(query, modified_fields_tuple)
 
-        # If it's the only task on the queue, start it
-        if len(self.machine_queues[machine]) == 1:
-            self._start_task(task)
-
-    def modify_task(self, task_id, modified_task):
-        """Modify the task"""
-        # Loop through the tasks
-        for i, task in enumerate(self.tasks):
-            if task[0] == task_id:  # To find the task_id we want to modify
-                if len(modified_task) < 6:
-                    modified_task.append(task[5])
-                self.tasks[i] = modified_task   # Modify it
-                self.is_modified = True
-                break
+            task = self.read_task(task_id)
+            # Notify websocket clients
+            if self.websocket_server:
+                message = json.dumps({
+                        "action": "update",
+                        "task_id": task_id,
+                        "task": task.to_tuple(),
+                })
+                asyncio.create_task(self.websocket_server.broadcast(message))
+        except Exception as e:
+            print(f"Error updating task witd ID {task_id}: {e}")
+            raise RuntimeError("Failed to update the task")
 
     def delete_task(self, task_id):
-        """Delete the task"""
-        # Loop through the tasks
-        for i, task in enumerate(self.tasks):
-            if task[0] == task_id:  # To find the task_id we want to delete
-                machine = task[2]
-                if task_id in self.timer:
-                    # Stop and delete the task from the timer
-                    self.timer[task_id].cancel()
-                    del self.timer[task_id]
+        """Delete the selected task on the database"""
+        try:
+            query = "DELETE FROM tasks WHERE task_id = ?"
+            self.db_manager.execute_query(query, (task_id,))
+            
+            # Notify websocket clients
+            if self.websocket_server:
+                message = json.dumps({
+                        "action": "delete",
+                        "task_id": task_id,
+                })
+                asyncio.create_task(self.websocket_server.broadcast(message))
+        except Exception as e:
+            print(f"Error deleting task with ID {task_id}: {e}")
+            raise RuntimeError("Failed to delete the task")
 
-                # Delete the task from the queue by looking for all the ones
-                # that are not equal to the one being deleted, keeping them
-                self.machine_queues[machine] = [
-                    task for task in self.machine_queues[machine] if task[0] != task_id
-                ]
-                
-                self.is_modified = True
-                del self.tasks[i]
-                break
+    # Other methods
+    def get_all_tasks(self):
+        """Get all the tasks from the table"""
+        try:
+            query = "SELECT * FROM tasks"
+            result = self.db_manager.execute_query(query)
+            return result
+        except Exception as e:
+            print(f"Error getting all the tasks: {e}")
+            raise RuntimeError("Failed to fetch the tasks")
+    
+    def update_task_status(self, task_id, new_status):
+        """Update the status of a task to a new one in the database"""
+        try:
+            query = "UPDATE task SET status = ? WHERE task_id = ?"
+            self.db_manager.execute_query(query, (new_status, task_id))
 
-    def _start_task(self, task):
-        """Start a given task from the queue"""
-        task_id = task[0]
-        machine = task[2]
-        task[5] = str(task[6])
-        
-        def decrement_time():
-            if int(task[6]) > 0:
-                task[6] = str(int(task[6]) - 1)
-                task[5] = task[6]
-                self.is_modified = True
-                self.timer[task_id] = Timer(1, decrement_time)
-                self.timer[task_id].start()
-            else:
-                task[5] = "Completed"
-                self.is_modified = True
-                self.timer.pop(task_id, None)
-                self._save_tasks_to_csv()
-
-                self.machine_queues[machine].pop(0)
-                if self.machine_queues[machine]:
-                    self._start_task(self.machine_queues[machine][0])
-
-        decrement_time()
-
-
-    def get_tasks(self):
-        return self.tasks
-
-    def save_tasks(self):
-        self._save_tasks_to_csv()
+            if self.websocket_server:
+                message = json.dumps({
+                        "action": "status_update",
+                        "task_id": task_id,
+                        "status": new_status
+                })
+                asyncio.create_task(self.websocket_server.broadcast(message))
+        except Exception as e:
+            print(f"Error udating status on task ID {task_id}: {e}")
+            raise RuntimeError("Failed toupdating task status")

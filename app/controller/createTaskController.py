@@ -1,4 +1,5 @@
 from tkinter import messagebox
+from model.taskModel import TaskModel
 from utils.utils import Utils
 
 from datetime import datetime as dt
@@ -21,58 +22,47 @@ class CreateTaskController:
 
     # Generate a new task when the button is pressed
     def _create_task(self):
-        """Create a new task on the press of the button
-        and after confirmation."""
+        """Create a new task on the press of the button and after confirmation."""
         # Get the fields values
-        machine = self.view.machine_combo.get()
-        material = self.view.material_combo.get()
-        speed = self.view.speed_entry.get()
-        # Validate the inputs before creating the task
-        if self._validate_inputs(machine, material, speed):
-            # Create a new task model instance and set its attributes
-            # Get the time_left from config
-            time_left = next(
-                (
-                    machine_config["time"] for machine_config in self.config["machines"] if machine_config["name"] == machine
-                ), 0
-            )
+        machine = self.view.get_machine()
+        material = self.view.get_material()
+        speed = self.view.get_speed()
 
-            # Create new task
-            task = [
-                dt.now().strftime('%Y%m%d-%H%M%S'),
-                dt.now().strftime("%H:%M:%S"),
-                machine,
-                material,
-                speed,
-                "On queue",
-                time_left
-            ]
-            # Add it to the view
-            self.task_manager.add_task(task)
-
-            self.add_task_callback(task)
-
-            messagebox.showinfo("Success", "Task created successfully!")
-            self.task_manager._save_tasks_to_csv()
-
-            # Clear the input fields after task creation
-            self.view.machine_combo.set("")
-            self.view.material_combo.set("")
-            self.view.speed_entry.delete(0, 'end')
-            
-            self.view.destroy()
-
-    def _validate_inputs(self, machine, material, speed):
-        """Check if the values aren't empty"""
+        # Validate the inputs
         utils = Utils()
-        is_valid, error_message = utils.validate_inputs(
-                machine,
-                material,
-                speed
-        )
+        is_valid, error_message = utils.validate_inputs(machine, material, speed)
         if not is_valid:
             messagebox.showerror("Input error", error_message)
-        return is_valid
+            return
+        
+        # Get the time_left from config
+        time_left = next(
+            (
+                machine_config["time"]
+                for machine_config in self.config["machines"]
+                if machine_config["name"] == machine
+            ), 0
+        )
+        
+        # Create a new task model instance and set its attributes
+        task = TaskModel(
+                machine=machine,
+                material=material,
+                speed=int(speed),
+                time_left=time_left
+        )
+
+        # Add it to the database
+        self.task_manager.create_task(task)
+
+        messagebox.showinfo("Success", "Task created successfully!")
+
+        # Clear the input fields after task creation
+        self.view.machine_combo.set("")
+        self.view.material_combo.set("")
+        self.view.speed_entry.delete(0, 'end')
+        
+        self.view.destroy()
 
     def _on_machine_type_change(self, machine_type):
         """Modify the materials according to the machine type selected."""
