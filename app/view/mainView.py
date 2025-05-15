@@ -149,26 +149,6 @@ class MainView():
         for task in tasks:
             self.tree.insert("", tk.END, values=task)
 
-    def add_task_to_table(self, task):
-        """Insert the task to be seen on the table"""
-        self.tree.insert("", tk.END, values=task)
-
-    def modify_task_in_table(self, task_id, updated_task):
-        """Modify the selected task as it appears on the table"""
-        
-        for item in self.tree.get_children():
-            # Check that the ID matches
-            if self.tree.item(item, "values")[0] == task_id:
-                self.tree.item(item, values=updated_task)
-                break
-
-    def delete_task_from_table(self, task_id):
-        """Delete the selected task from the table"""
-        for item in self.tree.get_children():
-            if self.tree.item(item, "values")[0] == task_id:
-                self.tree.delete(item)
-                break
-
     # Sort the data on the table
     def on_column_click(self, column):
         if self._on_column_click:

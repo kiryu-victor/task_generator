@@ -57,7 +57,7 @@ class CreateTaskView(tk.Toplevel):
 				values=[]
 		)
 		self.machine_combo.bind("<<ComboboxSelected>>",
-				lambda e: self._on_machine_type_change(self.machine_combo.get())
+				lambda e: self._on_machine_change(self.machine_combo.get())
 						if self._on_machine_change else None
 		)        
 		self.machine_combo.grid(row=0, column=1, sticky=tk.EW, padx=5, pady=5)
@@ -82,12 +82,6 @@ class CreateTaskView(tk.Toplevel):
 		
 		self.speed_range_label = ttk.Label(self.form_frame, text="")
 		self.speed_range_label.grid(row=3, column=1, sticky=tk.EW, padx=5, pady=5)
-
-	# On the event of the machine type being changed
-	def _on_machine_type_change(self, event=None):
-		"""Handle machine type change event."""
-		if self._on_machine_change:
-			self._on_machine_change(self.machine_combo.get())
 
 	# Create buttons after the form
 	def _create_buttons(self):

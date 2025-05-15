@@ -13,23 +13,17 @@ class ModifyTaskController:
         self.config = Utils.load_config()
 
         # Get the task that we selected
-        task = self.task_manager.read_task(task_id)
-        print(f"Task: {task.to_tuple()}")
-        # Set the old values on the modify menu
-        if not task:
-            messagebox.showerror("Error", "Task not found.")
+        self.task = self.task_manager.read_task(task_id)
+        if not self.task:
+            messagebox.showerror("Error", "Task not found")
             self.view.destroy()
             return
-        
-        # Populate the old values
-        self.view.set_old_values(
-            task.machine, # Machine
-            task.material, # Material
-            task.speed, # Speed
-            task.status, # Status
-        )
-        
-        # Set the button the _modify_task method
+
+        # Set the actual values for reference and the enabled fields
+        self._set_actual_values()
+        self._set_enabled_combos()
+
+        # Callbacks
         self.view.set_on_modify_task(self._modify_task)
         self.view.set_on_machine_type_change(self._on_machine_type_change)
         self.view.set_on_material_change(self._on_material_change)
@@ -40,77 +34,25 @@ class ModifyTaskController:
                 machine["name"] for machine in self.config["machines"]
         ]
 
-        # If the task has started, populate the speed range this way
-        if task.status.isdigit():
-            self.on_started_task_modify()
+    # Set the current values of the task
+    def _set_actual_values(self):
+        """
+        Set the values of the labels for the selected task
+        so the user can see the data from the task about to be modified.
+        """
+        self.view.machine_actual_value.config(text=self.task.machine)
+        self.view.material_actual_value.config(text=self.task.material)
+        self.view.speed_actual_value.config(text=self.task.speed)
 
-    # Modify a task that has been selected
-    def _modify_task(self):
-        """Modify the selected task.
-        Validate if a task can be modified first.
-        Tasks that haven't started yet can be fully modified.
-        Tasks that are ongoing can only have speed modified (recalculated).
-        Tasks that are completed cannot be modified."""
-        try:
-            # Check the status of the task we selected
-            # Depending on it the values will take the values from the combo
-            # or from the label
-            task = self.task_manager.read_task(self.task_id)
-            if task.status == "On queue":
-                machine = self.view.get_machine()
-                material = self.view.get_material()
-            else:
-                machine = self.view.machine_old_value.cget("text")
-                material = self.view.material_old_value.cget("text")
-            speed = self.view.get_speed()
+        if self.task.status.isdigit():
+            self._on_started_task_modify()
 
-            # Tengo que pasar una tupla para cambiar los datos que han cambiado
-            updating_tuple = (machine, material, str(speed), self.task_id)
-            
-            # Validate the inputs
-            utils = Utils()
-            is_valid, error_message = utils.validate_inputs(machine, material, speed)
-            if not is_valid:
-                messagebox.showerror("Input error", error_message)
-                return
-            
-            # Set the values for a task
-            updated_task = self.task_manager.read_task(self.task_id)
-            updated_task.machine = machine
-            updated_task.material = material
-            updated_task.speed = int(speed)
-            
-            # Update the task on the DB
-            self.task_manager.update_task(self.task_id, updating_tuple)
+    # Populates the speed range of a task that has already started
+    def _on_started_task_modify(self):
+        """Populates the speed range for a started task."""
+        machine_type = self.view.machine_actual_value.cget("text")
+        material_name = self.view.material_actual_value.cget("text")
 
-            # Modal window for success
-            messagebox.showinfo("Success", "Task modified.")
-            self.view.destroy()
-        
-        except ValueError as e:
-            messagebox.showerror("Error", str(e))
-
-
-    # Modify the materials depending on the machine
-    def _on_machine_type_change(self, machine_type):
-        """Modify the materials according to the machine type selected"""
-        # Reset the values that could be set by the user
-        self.view.material_combo.set("")
-        self.view.speed_entry.delete(0)
-        self.view.speed_range_label.config(text="")
-        
-        for machine in self.config["machines"]:
-            if machine["name"] == machine_type:
-                self.view.material_combo["values"] = machine["materials"]
-                break
-
-    # Modify the speeds depending on the material
-    def _on_material_change(self, material_name):
-        """Modify the speed range according to the material selected.
-        Data is changed on utils/config.json"""
-        # Get the type of machine selected
-        machine_type = self.view.machine_combo.get()
-        
         for material in self.config["materials"]:
             if material["name"] == material_name:
                 if "carbide" in machine_type.lower():
@@ -126,11 +68,92 @@ class ModifyTaskController:
                 )
                 break
 
-    def on_started_task_modify(self):
-        """Populates the speed range a started task can select."""
-        machine_type = self.view.machine_old_value.cget("text")
-        material_name = self.view.material_old_value.cget("text")
+    def _set_enabled_combos(self):
+        """
+        Set what comboboxes are enabled.
+        Tasks that haven't started ('On queue') yet can be fully modified.
+        Tasks that are ongoing can only have speed modified (recalculated).
+        Tasks that are 'Completed' cannot be modified.
+        """
+        if self.task.status == "On queue":
+            # If the task is waiting on the queue
+            self.view.machine_combo["state"] = "readonly"
+            self.view.material_combo["state"] = "readonly"
+            self.view.speed_entry["state"] = "normal"
+        else:
+            # Ongoing task - Only speed can be changed
+            self.view.machine_combo["state"] = "disabled"
+            self.view.material_combo["state"] = "disabled"
+            self.view.speed_entry["state"] = "normal"
 
+
+    # Modify a task that has been selected
+    def _modify_task(self):
+        """
+        Modify the selected task.
+        Validate if a task can be modified first.
+        Tasks that haven't started ('On queue') yet can be fully modified.
+        Tasks that are ongoing can only have speed modified (recalculated).
+        Tasks that are 'Completed' cannot be modified.
+        """
+        try:
+            task = self.task_manager.read_task(self.task_id)
+            if task.status == "On queue":
+                machine = self.view.machine_combo.get()
+                material = self.view.material_combo.get()
+            else:
+                machine = self.view.machine_actual_value.cget("text")
+                material = self.view.material_actual_value.cget("text")
+            speed = self.view.speed_entry.get()
+
+            updating_tuple = (machine, material, str(speed), self.task_id)
+
+            # Validate the inputs
+            utils = Utils()
+            is_valid, error_message = utils.validate_inputs(machine, material, speed)
+            if not is_valid:
+                messagebox.showerror("Input error", error_message)
+                return
+
+            # Update task on the DB
+            self.task_manager.update_task(updating_tuple)
+            
+            messagebox.showinfo("Success", "Task modified.")
+            
+            # Repopulate the view with updated tasks
+            if self.modify_task_callback:
+                self.modify_task_callback()
+            self.view.destroy()
+
+        except ValueError as e:
+            messagebox.showerror("Error", str(e))
+
+
+    # Modify the materials and speeds
+    def _on_machine_type_change(self, machine_type):
+        """Modify the materials according to the machine type selected."""
+        # Reset the values that could be set by the user
+        self.view.material_combo.set("")
+        self.view.speed_entry.delete(0, "end")
+        self.view.speed_range_label.config(text="")
+        
+        for machine in self.config["machines"]:
+            if machine["name"] == machine_type:
+                self.view.material_combo["values"] = machine["materials"]
+                break
+
+    def _on_material_change(self, material_name):
+        """
+        Modify the speed range according to the material selected.
+        Data is changed on utils/config.json
+        """
+        # Reset the values that could be set by the user
+        self.view.speed_entry.delete(0, "end")
+        self.view.speed_range_label.config(text="")
+
+        # Get the type of machine selected
+        machine_type = self.view.machine_combo.get()
+        
         for material in self.config["materials"]:
             if material["name"] == material_name:
                 if "carbide" in machine_type.lower():

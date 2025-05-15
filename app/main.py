@@ -26,40 +26,15 @@ async def run_tkinter(root):
 async def main():
     # Main app window
     root = tk.Tk()
+    
+    # Load both the main view and controller
     main_view = MainView(root)
     MainController(main_view, websocket_server)
 
-    close_event = asyncio.Event()
-
-    async def on_close():
-        print("Shutting down...")
-        # Disconnect al clients
-        await websocket_server.stop_server()
+    def on_close():
         root.destroy()
-        close_event.set()
 
-    root.protocol(
-            "WM_DELETE_WINDOW",
-            lambda: asyncio.create_task(on_close())
-    )
+    root.protocol("WM_DELETE_WINDOW", on_close)
 
-    # Tasks references
-    server_task = asyncio.create_task(start_websocket_server())
-    tk_task = asyncio.create_task(run_tkinter(root))
-    # Shutdown signal
-    await close_event.wait()
-    # Cleanup tasks
-    server_task.cancel()
-    tk_task.cancel()
-
-    # Start both Websocket and Tkinter main loop
-    await asyncio.gather(
-            # Call both coroutines
-            server_task,
-            tk_task,
-            return_exceptions=True
-    )
-
-if __name__ == "__main__":
-    # Start the wss in another thread
-    asyncio.run(main())
+    # Shows all until the user terminates the program
+    root.mainloop()
