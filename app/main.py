@@ -5,12 +5,15 @@ import tkinter as tk
 
 if __name__ == "__main__":
     root = tk.Tk()
+    
+    # Load both the main view and controller
     main_view = MainView(root)
     main_controller = MainController(main_view)
 
     def on_close():
-        main_controller.save_tasks_on_exit()
         root.destroy()
 
     root.protocol("WM_DELETE_WINDOW", on_close)
+
+    # Shows all until the user terminates the program
     root.mainloop()

@@ -1,27 +1,47 @@
 from tkinter import messagebox
 
 class DeleteTaskController:
-    def __init__(self, view, task_manager, task_index, delete_task_callback):
+    def __init__(self, view, task_manager, task_id, delete_task_callback):
         self.view = view
         self.task_manager = task_manager
-        self.task_index = task_index
+        self.task_id = task_id
         self.delete_task_callback = delete_task_callback
 
         # Get the task that we selected
-        task = self.task_manager.tasks[task_index]
-        # Set the old values on the modify menu
-        self.view.set_old_values(
-                task[0], task[1], task[2], task[3], task[4], task[5]
-        )
+        self.task = self.task_manager.read_task(task_id)
+        if not self.task:
+            messagebox.showerror("Error", "Task not found")
+            self.view.destroy()
 
+        # Show the values of the task
+        self._set_values()
+        # Delete on "DELETE" button click
         self.view.set_on_delete_task(self._delete_task)
 
-    def _delete_task(self):
-        """Delete the selected task"""
-        task_id = self.task_manager.tasks[self.task_index][0]
-        self.task_manager.delete_task(task_id)
 
-        self.delete_task_callback(task_id)
+    def _set_values(self):
+        """
+        Set the values of the labels for the selected task
+        so the user can see the data from the task about to be deleted.
+        """
+        self.view.set_values(
+                self.task.task_id,
+                self.task.timestamp_start,
+                self.task.machine,
+                self.task.material,
+                self.task.speed,
+                self.task.status
+        )
+
+
+    def _delete_task(self):
+        """Delete the selected task."""
+        self.task_manager.delete_task(self.task_id)
 
         messagebox.showinfo("Success", "Task deleted successfully!")
+
+        # Repopulate the view with updated tasks
+        if self.delete_task_callback:
+            self.delete_task_callback()
+        
         self.view.destroy()

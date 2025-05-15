@@ -7,7 +7,7 @@ class Utils:
 
     @staticmethod
     def center_window_on_screen(window, width, height):
-        """Center a window on any screen"""
+        """Center a window on any screen."""
         # Updates the data from geometry
         window.update_idletasks()
         # Get both screen width and height
@@ -19,15 +19,16 @@ class Utils:
         position_y = (screen_height - height) // 2
         window.geometry(f"{width}x{height}+{position_x}+{position_y}")
 
+
     @staticmethod
     def load_config():
-        """Load the configuration from the config.json file"""
+        """Load the configuration from the config.json file."""
         with open("app/utils/config.json", "r") as file:
             return json.load(file)
 
 
     def validate_inputs(self, machine, material, speed):
-        """Validate that inputs are not empty and speed is a valid number"""
+        """Validate that inputs are not empty and speed is a valid number."""
         # Check all the values are filled
         if not machine:
             return False, "There is no machine type specified."
@@ -54,7 +55,9 @@ class Utils:
                 
                 # Check if the speed is on the range
                 if current_speed < min_speed or current_speed > max_speed:
-                    return False, f"The speed is not within the correct limits ({min_speed} - {max_speed})"
+                    return (False, 
+                            f"The speed is not within the correct limits"
+                            f" ({min_speed} - {max_speed})")
                 break
 
         return True, None

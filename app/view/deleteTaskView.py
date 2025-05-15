@@ -4,7 +4,7 @@ from utils.utils import Utils
 
 
 class DeleteTaskView(tk.Toplevel):
-	def __init__(self, root, task):
+	def __init__(self, root):
 		super().__init__(root)
 		self.title("Delete task")
 		self.geometry("240x300")
@@ -34,11 +34,11 @@ class DeleteTaskView(tk.Toplevel):
 		self._on_delete_task = callback
 
 
-	# Elements for the form
+
 	def _create_form_elements(self):
-		"""Create the elements of the task deletion form
-		Labels on the left
-		Values on the right"""
+		"""Create the elements of the task deletion form.
+		Labels on the left.
+		Values on the right."""
 		# Create a frame for the task creation form
 		self.form_frame = ttk.Frame(self.main_frame, padding=10)
 		self.form_frame.pack(fill=tk.BOTH, expand=True)
@@ -99,14 +99,3 @@ class DeleteTaskView(tk.Toplevel):
 		# Pack buttons
 		self.delete_button.pack(side=tk.LEFT, padx=5)
 		self.cancel_button.pack(side=tk.RIGHT, padx=10)
-
-
-	def set_old_values(self, id_selected, date_created, machine, material,
-			speed, status):
-		"""Set the old values """
-		self.id_selected.config(text=id_selected)
-		self.date_created_selected.config(text=date_created)
-		self.machine_selected.config(text=machine)
-		self.material_selected.config(text=material)
-		self.speed_selected.config(text=speed)
-		self.status_selected.config(text=status)
