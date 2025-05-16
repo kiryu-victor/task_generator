@@ -1,4 +1,3 @@
-from utils.wss import WebSocketServer
 from model.taskManager import TaskManager
 from view.createTaskView import CreateTaskView
 from view.modifyTaskView import ModifyTaskView
@@ -11,7 +10,7 @@ from utils.database import DatabaseManager
 from tkinter import messagebox
 
 class MainController:
-    def __init__(self, view, websocket_server):
+    def __init__(self, view):
         self.view = view
         self.db_manager = DatabaseManager()
         self.task_manager = TaskManager(self.db_manager)

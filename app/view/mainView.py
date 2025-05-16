@@ -1,8 +1,4 @@
-import asyncio
-import json
 import tkinter as tk
-import websockets
-
 from tkinter import ttk
 from utils.utils import Utils
 
@@ -32,51 +28,10 @@ class MainView():
         self._create_table()
         self._create_buttons()
 
-        # Start the client
-        asyncio.create_task(self.start_websocket_client())
-
-
-    # Websocket client
-    async def start_websocket_client(self):
-        """Connect to the server and listen for messages."""
-        uri = "ws://localhost:8765"
-        try:
-            async with websockets.connect(uri) as websocket:
-                print("Connected to the server")
-                async for message in websocket:
-                    self.handle_websocket_message(message)
-        except Exception as e:
-            print(f"Error connecting to the server: {e}")
-
-    async def listen_for_updated(self, websocket):
-        """Listen for messages from the server"""
-        try:
-            async for message in websocket:
-                self.handle_websocket_message(message)
-        except websockets.exceptions.ConnectionClosed:
-            print("Server connection closed")
-
-    def handle_websocket_message(self, message):
-        """Handle a message comming from the Websocket server"""
-        try:
-            data = json.loads(message)
-            action = data.get("action")
-
-            if action == "create":
-                self.add_task_to_table(data["task"])
-            elif action == "update":
-                self.modify_task_in_table(data["task_id"], data["task"])
-            elif action == "delete":
-                self.delete_task_from_table(data["task_id"])
-            elif action == "status_update":
-                self.update_task_status_in_table(data["task_id"], data["status"])
-        except Exception as e:
-            print(f"Error handling server message: {e}")
-
     # Table for displaying tasks
     def _create_table(self):
         # Create a treeview for displaying data
-        columns = ("Task ID", "Time", "Machine", "Material", "Speed", "Status", "Time left")
+        columns = ("Task ID", "Time", "Machine", "Material", "Speed", "Status")
         self.tree = ttk.Treeview(self.main_frame, columns=columns, show="headings")
         
         # Headings
@@ -92,17 +47,14 @@ class MainView():
                 command=lambda: self.on_column_click("Speed"))
         self.tree.heading("Status", text="Status",
                 command=lambda: self.on_column_click("Status"))
-        self.tree.heading("Time left", text="Time left",
-                command=lambda: self.on_column_click("Time left"))
 
         # Column widths
         self.tree.column("Task ID", width=100)
-        self.tree.column("Time", width=60)
+        self.tree.column("Time", width=100)
         self.tree.column("Machine", width=100)
-        self.tree.column("Material", width=80)
-        self.tree.column("Speed", width=60)
-        self.tree.column("Status", width=60)
-        self.tree.column("Time left", width=60)
+        self.tree.column("Material", width=100)
+        self.tree.column("Speed", width=100)
+        self.tree.column("Status", width=100)
 
         self.tree.pack(fill=tk.BOTH, expand=True)
 

@@ -24,14 +24,12 @@ class DeleteTaskController:
         Set the values of the labels for the selected task
         so the user can see the data from the task about to be deleted.
         """
-        self.view.set_values(
-                self.task.task_id,
-                self.task.timestamp_start,
-                self.task.machine,
-                self.task.material,
-                self.task.speed,
-                self.task.status
-        )
+        self.view.id_selected.config(text=self.task.task_id)
+        self.view.date_created_selected.config(text=self.task.timestamp_start)
+        self.view.machine_selected.config(text=self.task.machine)
+        self.view.material_selected.config(text=self.task.material)
+        self.view.speed_selected.config(text=self.task.speed)
+        self.view.status_selected.config(text=self.task.status)
 
 
     def _delete_task(self):

@@ -107,17 +107,3 @@ class CreateTaskView(tk.Toplevel):
 		# Pack buttons
 		self.create_button.pack(side=tk.LEFT, padx=5)
 		self.cancel_button.pack(side=tk.RIGHT, padx=5)
-
-
-	# Gets & sets
-	def get_machine(self):
-		"""Get the selected machine."""
-		return self.machine_combo.get()
-
-	def get_material(self):
-		"""Get the selected material."""
-		return self.material_combo.get()
-
-	def get_speed(self):
-		"""Get the selected speed."""
-		return self.speed_entry.get()

@@ -34,7 +34,6 @@ class DeleteTaskView(tk.Toplevel):
 		self._on_delete_task = callback
 
 
-
 	def _create_form_elements(self):
 		"""Create the elements of the task deletion form.
 		Labels on the left.

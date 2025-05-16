@@ -48,7 +48,7 @@ class ModifyTaskView(tk.Toplevel):
     # Create the elements for the modification menu
     def _create_form_elements(self):
         """Create the elements of the task modification form
-        actual values will be showing on the left side
+        current values will be showing on the left side
         New values will be input on the right side"""
         # Create a frame for the task creation form
         self.form_frame = ttk.Frame(self.main_frame, padding=10)
@@ -61,9 +61,9 @@ class ModifyTaskView(tk.Toplevel):
         self.form_frame.grid_columnconfigure(3, weight=0, minsize=125)
         
         # Heading
-        self.actual_values_label = ttk.Label(self.form_frame, text="actual value")
-        self.actual_values_label.grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
-        # Vertical separator between the actual and new values
+        self.current_values_label = ttk.Label(self.form_frame, text="Current value")
+        self.current_values_label.grid(row=0, column=1, sticky=tk.W, padx=5, pady=5)
+        # Vertical separator between the current and new values
         ttk.Separator(self.form_frame, orient="vertical").grid(
                 row=0, column=2, rowspan=4, sticky=tk.NS
 		)
@@ -74,8 +74,8 @@ class ModifyTaskView(tk.Toplevel):
         self.machine_label = ttk.Label(self.form_frame, text="Machine")
         self.machine_label.grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
 
-        self.machine_actual_value = ttk.Label(self.form_frame)
-        self.machine_actual_value.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
+        self.machine_current_value = ttk.Label(self.form_frame)
+        self.machine_current_value.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
 
         self.machine_combo = ttk.Combobox(self.form_frame, state="readonly")
         self.machine_combo.bind("<<ComboboxSelected>>",
@@ -88,8 +88,8 @@ class ModifyTaskView(tk.Toplevel):
         self.material_label = ttk.Label(self.form_frame, text="Material")
         self.material_label.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
 
-        self.material_actual_value = ttk.Label(self.form_frame)
-        self.material_actual_value.grid(row=2, column=1, sticky=tk.W, padx=5, pady=5)
+        self.material_current_value = ttk.Label(self.form_frame)
+        self.material_current_value.grid(row=2, column=1, sticky=tk.W, padx=5, pady=5)
         # The materials available depend on the machine type selected
         self.material_combo = ttk.Combobox(self.form_frame, state="readonly",)
         self.material_combo.grid(row=2, column=3, sticky=tk.EW, padx=5, pady=5)
@@ -103,8 +103,8 @@ class ModifyTaskView(tk.Toplevel):
         self.speed_label = ttk.Label(self.form_frame, text="Speed (SMM)")
         self.speed_label.grid(row=3, column=0, sticky=tk.W, padx=5, pady=5)
 
-        self.speed_actual_value = ttk.Label(self.form_frame)
-        self.speed_actual_value.grid(row=3, column=1, sticky=tk.W, padx=5, pady=5)
+        self.speed_current_value = ttk.Label(self.form_frame)
+        self.speed_current_value.grid(row=3, column=1, sticky=tk.W, padx=5, pady=5)
 
         self.speed_entry = ttk.Entry(self.form_frame)
         self.speed_entry.grid(row=3, column=3, sticky=tk.EW, padx=5, pady=5)

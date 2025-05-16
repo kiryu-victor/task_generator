@@ -19,8 +19,8 @@ class ModifyTaskController:
             self.view.destroy()
             return
 
-        # Set the actual values for reference and the enabled fields
-        self._set_actual_values()
+        # Set the current values for reference and the enabled fields
+        self._set_current_values()
         self._set_enabled_combos()
 
         # Callbacks
@@ -35,14 +35,14 @@ class ModifyTaskController:
         ]
 
     # Set the current values of the task
-    def _set_actual_values(self):
+    def _set_current_values(self):
         """
         Set the values of the labels for the selected task
         so the user can see the data from the task about to be modified.
         """
-        self.view.machine_actual_value.config(text=self.task.machine)
-        self.view.material_actual_value.config(text=self.task.material)
-        self.view.speed_actual_value.config(text=self.task.speed)
+        self.view.machine_current_value.config(text=self.task.machine)
+        self.view.material_current_value.config(text=self.task.material)
+        self.view.speed_current_value.config(text=self.task.speed)
 
         if self.task.status.isdigit():
             self._on_started_task_modify()
@@ -50,8 +50,8 @@ class ModifyTaskController:
     # Populates the speed range of a task that has already started
     def _on_started_task_modify(self):
         """Populates the speed range for a started task."""
-        machine_type = self.view.machine_actual_value.cget("text")
-        material_name = self.view.material_actual_value.cget("text")
+        machine_type = self.view.machine_current_value.cget("text")
+        material_name = self.view.material_current_value.cget("text")
 
         for material in self.config["materials"]:
             if material["name"] == material_name:
@@ -102,8 +102,8 @@ class ModifyTaskController:
                 machine = self.view.machine_combo.get()
                 material = self.view.material_combo.get()
             else:
-                machine = self.view.machine_actual_value.cget("text")
-                material = self.view.material_actual_value.cget("text")
+                machine = self.view.machine_current_value.cget("text")
+                material = self.view.material_current_value.cget("text")
             speed = self.view.speed_entry.get()
 
             updating_tuple = (machine, material, str(speed), self.task_id)
