@@ -1,23 +1,16 @@
 from tkinter import messagebox
+
 from utils.utils import Utils
 
 
 class ModifyTaskController:
-    def __init__(self, view, task_manager, task_id, modify_task_callback):
+    def __init__(self, view, ws_client, task):
         self.view = view
-        self.task_manager = task_manager
-        self.task_id = task_id
-        self.modify_task_callback = modify_task_callback
+        self.ws_client = ws_client
+        self.task = task
 
         # Load config.json for the machine, materials and speeds settings
-        self.config = Utils.load_config()
-
-        # Get the task that we selected
-        self.task = self.task_manager.read_task(task_id)
-        if not self.task:
-            messagebox.showerror("Error", "Task not found")
-            self.view.destroy()
-            return
+        self.config = Utils.load_config()      
 
         # Set the current values for reference and the enabled fields
         self._set_current_values()
@@ -97,8 +90,7 @@ class ModifyTaskController:
         Tasks that are 'Completed' cannot be modified.
         """
         try:
-            task = self.task_manager.read_task(self.task_id)
-            if task.status == "On queue":
+            if self.task.status == "On queue":
                 machine = self.view.machine_combo.get()
                 material = self.view.material_combo.get()
             else:
@@ -106,7 +98,13 @@ class ModifyTaskController:
                 material = self.view.material_current_value.cget("text")
             speed = self.view.speed_entry.get()
 
-            updating_tuple = (machine, material, str(speed), self.task_id)
+            # Dict that will be passed as param
+            updating_dict = {
+                    "machine": machine,
+                    "material": material,
+                    "speed": str(speed),
+                    "task_id": self.task.task_id
+            }
 
             # Validate the inputs
             utils = Utils()
@@ -116,13 +114,9 @@ class ModifyTaskController:
                 return
 
             # Update task on the DB
-            self.task_manager.update_task(updating_tuple)
-            
+            self.ws_client.send("update", updating_dict)            
             messagebox.showinfo("Success", "Task modified.")
-            
-            # Repopulate the view with updated tasks
-            if self.modify_task_callback:
-                self.modify_task_callback()
+
             self.view.destroy()
 
         except ValueError as e:

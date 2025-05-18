@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
+
 from utils.utils import Utils
+
 
 class CreateTaskView(tk.Toplevel):
 	def __init__(self, root):

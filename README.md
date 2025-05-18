@@ -25,20 +25,8 @@
 
 
 ## How is it made?
-**Tech used:** Python, venv, tkinter, ~~CSV~~, SQLite
-
-<ins>**OLD:**</ins>
-> The TaskManager (model) class loads the CSV file with all the tasks.
-It handles creation, modification and deletion operations, saving them back to the CSV file. Until then, the tasks are stored in memory as a list of dictionaries they are sorted into machine-specific queues. It was made like this because it was going to be only one client.
-
-<ins>**NEW:**</ins>
-> The TaskManager (model) loads the data from the DB (tasks.db). It handles creation, modification and deletion operations.
-It handles creation, modification and deletion operations on the database (DB). With each operation, the view updates with the current data of the DB.
-
-<ins>**COMMON**</ins>
-tkinter is used for the views (GUI). The MainView is the main window with all the tasks, and then each operation has its own class. The GUIs have buttons that let the user create, modify and delete tasks.
-The controllers (MainController, CreateTaskcontroller...) deal with the inputs, validate data and update the model and view.
-Utils is a folder that has utils.py, that serves to center the app on the screen and validate inputs, and config.json, that has the different machines, materials, speed ranges and ETCs that are used on the inputs.
+#### Tech used:
+Python, venv, tkinter, ~~CSV~~, SQLite, asyncio, websockets
 
 #### TLDR:
  1. Task are loaded from DB on app start.
@@ -49,19 +37,33 @@ Utils is a folder that has utils.py, that serves to center the app on the screen
  6. User inserts the inputs in order, which are validated.
  7. Once the operation is done the tasks are loaded again, populating the table.
 
+<ins>**OLD:**</ins>
+> The TaskManager (model) class loads the CSV file with all the tasks.
+It handles creation, modification and deletion operations, saving them back to the CSV file. Until then, the tasks are stored in memory as a list of dictionaries they are sorted into machine-specific queues. It was made like this because it was going to be only one client.
+
+<ins>**NEW:**</ins>
+The TaskManager (model) loads the data from the DB (tasks.db). It handles creation, modification and deletion operations.
+It handles creation, modification and deletion operations on the database (DB). With each operation, the view updates with the current data of the DB.
+
+<ins>**COMMON**</ins>
+tkinter is used for the views (GUI). The MainView is the main window with all the tasks, and then each operation has its own class. The GUIs have buttons that let the user create, modify and delete tasks.
+The controllers (MainController, CreateTaskcontroller...) deal with the inputs, validate data and update the model and view.
+Utils is a folder that has utils.py, that serves to center the app on the screen and validate inputs, and config.json, that has the different machines, materials, speed ranges and ETCs that are used on the inputs.
+
 
 
 ## But... why?
 
 This project is the one that is gathering most of the things that I've learned by myself.
-I have been programming on Java since I started my regulated studies, but I want to try Python and explore the posibilities it has. With this I'm learning:
+I have been programming on Java since I started my regulated/certified studies, but I want to try Python and explore the posibilities it has. With this I'm learning:
 
-- Python.
+- Python
 - Pythonic coding. A new concept to me that I'm trying to follow.
 - PEP8 and PEP9. Another thing I didn't know about but got told about recently.
-- tkinter.
-- SQLite.
-- WebSocket updates. (to come)
+- tkinter
+- SQLite
+- asyncio
+- WebSocket updates 
 
 
 
@@ -70,15 +72,23 @@ I have been programming on Java since I started my regulated studies, but I want
 - [x] "Delete" should work only on "On queue" and ongoing tasks.
   - [x] "On queue": no issue.
   - [x] Ongoing:
-    - has to stop the countdown to avoid the completion of the task.
+    - [ ] Countdown logic has to be implemented.
+    - [ ] Countdown reaching 0 logic.
+    - [ ] Ongoing task modification or deletion pauses the task until finishing or canceling the operation.
+    - [ ] Ongoing task deletion logic, triggering the next on the list to start.
     - has to trigger the next task in case of deletion. Otherwise the remaining countdown should continue as per normal.
-      > [!NOTE]
-      > Deleted the countdown because it won't be used that way when implementing WebSockets (or so I think).
-- Migrate to SQLite ~~for WebSocket-based updates (instead of polling or reading from a CSV).~~
-- Implement WebSocket-based updates.
-- Make different status easier to be seen changing the background of the rows:
-  - Green: "Completed"
-  - Blue: "On queue"
-  - ...
-- Add filters to every column (not only sorting).
-- Make it all prettier (not a priority now).
+> [!NOTE]
+> Deleted the countdown because it won't be used that way when implementing WebSockets (or so I think).
+- [x] Migrate to SQLite.
+- [x] Implement WebSocket-based updates.
+- [x] Limited DB queries to the WebSocket server alone.
+- [ ] Make different status easier to be seen changing the background of the rows:
+  - [ ] Green: "Completed"
+  - [ ] Blue: "On queue"
+  - [ ] ...
+- [ ] Add filters to every column (not only sorting).
+- [ ] Make it all prettier.
+  - It became part of the regular list after many testing tries.
+  - [ ] Start with darker colours:
+    - GUI is way too bright.
+    - Switching between dark themed everything else and this bright themed GUI hurts.

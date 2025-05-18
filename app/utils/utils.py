@@ -1,5 +1,6 @@
 import json
 
+
 class Utils:
     def __init__(self):
         self.config = Utils.load_config()

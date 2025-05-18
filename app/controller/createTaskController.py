@@ -1,15 +1,13 @@
-from datetime import datetime as dt
 from tkinter import messagebox
 
 from model.taskModel import TaskModel
-from view.mainView import MainView
 from utils.utils import Utils
 
+
 class CreateTaskController:
-    def __init__(self, view, task_manager, add_task_callback):
+    def __init__(self, view, ws_client):
         self.view = view
-        self.task_manager = task_manager
-        self.add_task_callback = add_task_callback
+        self.ws_client = ws_client
 
         # Load config.json for the machine, materials and speeds settings
         self.config = Utils.load_config()
@@ -23,7 +21,6 @@ class CreateTaskController:
         self.view.machine_combo["values"] = [machine["name"]
                                                     for machine
                                                     in self.config["machines"]]
-
 
     def _create_task(self):
         """Create a new task on the press of the button and after confirmation."""
@@ -56,18 +53,14 @@ class CreateTaskController:
             time_left = expected_time
         )
 
-        # Insert said task
-        self.task_manager.create_task(task)
-        messagebox.showinfo("Success", "Task created successfully!")
-
-        # Repopulate the view with updated tasks
-        if self.add_task_callback:
-            self.add_task_callback()
+        # Send the task to the server via WebSocket
+        self.ws_client.send("create", task.__dict__)
+        messagebox.showinfo("Success", "Task creation requested!")
 
         # Clear the input fields after task creation
         self.view.machine_combo.set("")
         self.view.material_combo.set("")
-        self.view.speed_entry.delete(0, 'end')
+        self.view.speed_entry.delete(0, "end")
         
         self.view.destroy()
 
@@ -83,7 +76,6 @@ class CreateTaskController:
             if machine["name"] == machine_type:
                 self.view.material_combo["values"] = machine["materials"]
                 break
-
 
     def _on_material_change(self, material_name):
         """Modify the speed range according to the material selected."""

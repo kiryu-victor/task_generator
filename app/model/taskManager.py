@@ -48,11 +48,17 @@ class TaskManager:
             print(f"Error reading task: {e}")
             raise RuntimeError("Failed to read the task")
 
-    def update_task(self, modified_fields_tuple):
+    def update_task(self, params_dict):
         """
         Modifies the task on the DB.
         Requires a tuple with the values of the fields that are modified.
         """
+        params_tuple = (
+                params_dict["machine"],
+                params_dict["material"],
+                params_dict["speed"],
+                params_dict["task_id"],
+        )
         try:
             query = """
                     UPDATE tasks
@@ -61,7 +67,7 @@ class TaskManager:
                         speed = ?
                     WHERE task_id = ?
                     """
-            self.db_manager.execute_query(query, modified_fields_tuple)
+            self.db_manager.execute_query(query, params_tuple)
         except Exception as e:
             print(f"Error udpating task: {e}")
             raise RuntimeError("Failed to update the task")
@@ -95,33 +101,3 @@ class TaskManager:
         except Exception as e:
             print(f"Error udpating the task status: {e}")
             raise RuntimeError("Failed to update the task status")
-
-
-    # Other functions
-    def sort_tasks(self, column, ascending=True):
-        """Sort the table by the selected column."""
-        # Columns mapped to their indices
-        column_mapping = {
-            "Task ID": "task_id",
-            "Time": "timestamp_start",
-            "Machine": "machine",
-            "Material": "material",
-            "Speed": "speed",
-            "Status": "status",
-            "Time left": "time_left"
-        }
-        
-        if column not in column_mapping:
-            raise ValueError(f"Invalid column name: {column}")
-
-        # Get the column name
-        db_column = column_mapping[column]
-
-        # Order
-        order = "ASC" if ascending else "DESC"
-
-        # Get the SELECT sorted
-        query = f"SELECT * FROM tasks ORDER BY {db_column} {order}"
-        result = self.db_manager.execute_query(query)
-
-        return result

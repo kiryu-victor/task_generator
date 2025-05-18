@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 class TaskModel:
     def __init__(self, task_id=None, timestamp_start=None,
                 machine=None, material=None, speed=None,
