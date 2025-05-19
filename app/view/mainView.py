@@ -15,7 +15,7 @@ class MainView():
         Utils.center_window_on_screen(self.window, 1000, 600)
 
         # Create a frame for the main view
-        self.main_frame = ttk.Frame(self.window, padding=10)
+        self.main_frame = ttk.Frame(self.window)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
         # Callbacks for button clicks
@@ -28,13 +28,14 @@ class MainView():
         # Create the elements of the main view
         self._create_table()
         self._create_buttons()
+        self._set_style()
 
     # Table for displaying tasks
     def _create_table(self):
         # Create a treeview for displaying data
         columns = ("Task ID", "Time", "Machine", "Material", "Speed", "Status")
-        self.tree = ttk.Treeview(self.main_frame, columns=columns, show="headings")
-        
+        self.tree = ttk.Treeview(self.main_frame, columns=columns, show="headings", padding=5)
+
         # Headings
         self.tree.heading("Task ID", text="Task ID",
                 command=lambda: self.on_column_click("Task ID"))
@@ -68,19 +69,19 @@ class MainView():
 
         # TODO: Find a way to make this less redundant
         self.create_button = tk.Button(self.button_frame, text="Create task",
-                bg="#7fff69", font=("Arial", 20),
+                bg="#08A045", font=("Arial", 20),
                 command=lambda: self._on_create_task()
                         if self._on_create_task else None
         )
 
         self.modify_button = tk.Button(self.button_frame, text="Modify task",
-                bg="#ffcf69", font=("Arial", 20),
+                bg="#E1BC29", font=("Arial", 20),
                 command=lambda: self._on_modify_task()
                         if self._on_modify_task else None
         )
         
         self.delete_button = tk.Button(self.button_frame, text="Delete task",
-                bg="#ff6973", font=("Arial", 20),
+                bg="#F15152", font=("Arial", 20),
                 command=lambda: self._on_delete_task()
                         if self._on_delete_task else None
         )
@@ -89,7 +90,7 @@ class MainView():
         self.create_button.pack(side=tk.LEFT, padx=0)
         # Expand to fill space (center)
         self.modify_button.pack(side=tk.LEFT, padx=0, expand=True)
-        self.delete_button.pack(side=tk.RIGHT, padx=5)
+        self.delete_button.pack(side=tk.RIGHT, padx=0)
 
 
     # Fill the table with data
@@ -120,3 +121,22 @@ class MainView():
 
     def set_on_column_click(self, callback):
         self._on_column_click = callback
+
+
+    def _set_style(self):
+        # Create the styles for the view
+        style = ttk.Style(self.window)
+        style.theme_use("clam")
+        style.configure(
+                "TFrame",
+                background="SkyBlue3"
+        )
+        style.configure(
+                "Treeview",
+                background="light slate grey",
+                fieldbackground="light slate grey"
+        )
+        style.configure(
+                "TLabel",
+                background="SkyBlue3"
+        )

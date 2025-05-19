@@ -16,10 +16,12 @@ if __name__ == "__main__":
     def update_view_from_server(tasks):
         main_view.populate_table(tasks)
 
-    # Try to connect as a client. If fails, start server, then connect as client.
+    # Try to connect as a client.
+    # If it fails, start server, then connect as client.
     def is_server_running(host='localhost', port=8765):
         try:
-            with socket.create_connection((host, port), timeout=1):
+            # Create a connection after 0.1s
+            with socket.create_connection((host, port), timeout=0.1):
                 return True
         except Exception:
             return False
@@ -32,7 +34,7 @@ if __name__ == "__main__":
                 daemon=True
         ).start()
         # Wait for the server to start
-        time.sleep(1)
+        time.sleep(0.5)
 
     # Start client
     ws_client = WebSocketClient(update_view_from_server)

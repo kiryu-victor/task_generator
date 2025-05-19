@@ -124,14 +124,14 @@ class ModifyTaskView(tk.Toplevel):
 
         # Accept task modification button
         self.modify_button = tk.Button(self.button_frame, text="Modify",
-                font=("Arial", 18), padx=10, pady=5, bg="#ffcf69",
+                font=("Arial", 18), padx=10, pady=5, bg="#E1BC29",
                 command=lambda: self._on_modify_task()
                         if self._on_modify_task else None
 		)
         
         # Cancel task modification button
         self.cancel_button = tk.Button(self.button_frame, text="Cancel",
-                font=("Arial", 18), padx=10, pady=5,
+                font=("Arial", 18), padx=10, pady=5, bg="#505050", fg="#e3e3e3",
                 command=self.destroy
 		)
 

@@ -85,14 +85,14 @@ class DeleteTaskView(tk.Toplevel):
 		self.button_frame.pack(fill=tk.X, side=tk.BOTTOM)
 
 		self.delete_button = tk.Button(self.button_frame, text="Delete",
-				font=("Arial", 16), padx=5, pady=5, bg="#ff6973",
+				font=("Arial", 16), padx=5, pady=5, bg="#F15152",
 				command=lambda: self._on_delete_task()
 						if self._on_delete_task else None
 		)
 		self.delete_button.grid(row=4, column=0, sticky=tk.EW, padx=5, pady=5)
 
 		self.cancel_button = tk.Button(self.button_frame, text="Cancel",
-				font=("Arial", 16), padx=5, pady=5,
+				font=("Arial", 16), padx=5, pady=5, bg="#505050", fg="#e3e3e3",
 				command=self.destroy
 		)
 

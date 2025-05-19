@@ -96,16 +96,16 @@ class CreateTaskView(tk.Toplevel):
 
 		# Accept task creation button
 		self.create_button = tk.Button(self.button_frame, text="Accept",
-				font=("Arial", 16), padx=10, pady=5, bg="#7fff69",
+				font=("Arial", 16), padx=10, pady=5, bg="#08A045",
 				command=lambda: self._on_create_task()
 						if self._on_create_task else None
 		)
 		# Cancel task creation button
 		self.cancel_button = tk.Button(self.button_frame, text="Cancel",
-				font=("Arial", 16), padx=10, pady=5,
+				font=("Arial", 16), padx=10, pady=5, bg="#505050", fg="#e3e3e3",
 				command=self.destroy
 		)
 
 		# Pack buttons
 		self.create_button.pack(side=tk.LEFT, padx=5)
-		self.cancel_button.pack(side=tk.RIGHT, padx=5)
+		self.cancel_button.pack(side=tk.RIGHT, padx=0)

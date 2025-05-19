@@ -76,7 +76,7 @@ I have been programming on Java since I started my regulated/certified studies, 
     - [ ] Countdown reaching 0 logic.
     - [ ] Ongoing task modification or deletion pauses the task until finishing or canceling the operation.
     - [ ] Ongoing task deletion logic, triggering the next on the list to start.
-    - has to trigger the next task in case of deletion. Otherwise the remaining countdown should continue as per normal.
+    - It has to trigger the next task in case of deletion. Otherwise the remaining countdown should continue as per normal.
 > [!NOTE]
 > Deleted the countdown because it won't be used that way when implementing WebSockets (or so I think).
 - [x] Migrate to SQLite.
@@ -87,8 +87,9 @@ I have been programming on Java since I started my regulated/certified studies, 
   - [ ] Blue: "On queue"
   - [ ] ...
 - [ ] Add filters to every column (not only sorting).
-- [ ] Make it all prettier.
+- [x] Make it all prettier.
   - It became part of the regular list after many testing tries.
-  - [ ] Start with darker colours:
+  - [x] Start with darker colours:
     - GUI is way too bright.
     - Switching between dark themed everything else and this bright themed GUI hurts.
+  - [x] Adjusted colour and style to fit better.
