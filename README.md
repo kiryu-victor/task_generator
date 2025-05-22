@@ -1,6 +1,7 @@
 ## What is this?
 **This is a WIP project** consisting of a task manager for three milling machines, each one with some materials that each machine can work with, which operate within a range of speeds measured in SMM *(Surface Meters per Minute)*.
-**Bear in mind that for the purpose of this project the data is not realistic. This way each operation does not take too long and is easily understandable.**
+> [!NOTE]
+> Bear in mind that for the purpose of this project the data is not realistic and it is very simplified. This way each operation is easily understandable for the purpose of learning.
 
 
 
