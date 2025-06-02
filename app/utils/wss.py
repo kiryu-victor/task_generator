@@ -23,6 +23,7 @@ class WebSocketServer:
         self.clients = set()
         self.db_manager = DatabaseManager(db_path)
         self.task_manager = TaskManager(self.db_manager)
+        self._countdown_task = None  # Will hold the asyncio task
 
     async def handler(self, websocket):
         # New client connects
@@ -45,6 +46,43 @@ class WebSocketServer:
             print()
             self.clients.remove(websocket)
 
+    async def countdown_loop(self):
+        """
+        Start the countdown for tasks with numeric status (ongoing).
+        Start tasks that are "On queue" when a machine is not running.
+        """
+        while True:
+            await self.decrement_numeric_statuses()
+            await self.start_tasks_on_idle_machines()
+            await asyncio.sleep(1)
+
+    async def decrement_numeric_statuses(self):
+        """
+        Decrement the number on the status column every second if the status is a number. 
+        """
+        tasks = self.task_manager.read_all_tasks()
+        updated = False
+        for task in tasks:
+            try:
+                status = task[5]
+                # If the status is number
+                if isinstance(status, int) or (isinstance(status, str) and status.isdigit()):
+                    current_value = int(status)
+                    if current_value > 0:
+                        new_value = current_value - 1
+                        # Change status to "Complete" once the countdown ends
+                        if new_value == 0:
+                            self.task_manager.update_task_status(task[0], "Completed")
+                            await self.start_next_queued_task(task[2])
+                            updated = True
+                        else:
+                            self.task_manager.update_task_status(task[0], str(new_value))
+                            updated = True
+            except Exception as e:
+                print(f"Countdown error for task {task[0]}: {e}")
+        if updated:
+            await self.broadcast_state()
+
     async def process_message(self, message):
         """
         Process a message from a client: create, update, or delete a task.
@@ -58,10 +96,13 @@ class WebSocketServer:
             # Convert params dict to TaskModel
             task_model = TaskModel(**params)
             self.task_manager.create_task(task_model)
+            # await self.broadcast_state()
         elif action == 'update':
             self.task_manager.update_task(params)
+            # await self.broadcast_state()
         elif action == 'delete':
             self.task_manager.delete_task(params['task_id'])
+            # await self.broadcast_state()
 
     async def send_state(self, websocket):
         """
@@ -106,11 +147,45 @@ class WebSocketServer:
         async def start():
             server = await websockets.serve(self.handler, WS_HOST, WS_PORT)
             print(f"WebSocket server started on ws://{WS_HOST}:{WS_PORT}")
+            await self.start()  # Start the async countdown loop
             await server.wait_closed()
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(start())
         loop.run_forever()
+
+    async def start(self):
+        if self._countdown_task is None:
+            self._countdown_task = asyncio.create_task(self.countdown_loop())
+
+    async def start_tasks_on_idle_machines(self):
+        tasks = self.task_manager.read_all_tasks()
+        machines = set(task[2] for task in tasks)
+        # Find machines with no running (numeric) task
+        for machine in machines:
+            has_running = any(
+                (isinstance(task[5], int) or (isinstance(task[5], str) and task[5].isdigit())) and int(task[5]) > 0
+                for task in tasks if task[2] == machine
+            )
+            if not has_running:
+                # Start the next queued task if any
+                for task in tasks:
+                    if task[2] == machine and task[5] == "On queue":
+                        time_left = task[6] if task[6] is not None else 1
+                        self.task_manager.update_task_status(task[0], str(time_left))
+                        await self.broadcast_state()
+                        break
+
+    async def start_next_queued_task(self, machine):
+        tasks = self.task_manager.read_all_tasks()
+        for task in tasks:
+            if task[2] == machine and task[5] == "On queue":
+                time_left = task[6] if task[6] is not None else 1
+                self.task_manager.update_task_status(task[0], str(time_left))
+                break
+
+
+
 
 class WebSocketClient:
     """

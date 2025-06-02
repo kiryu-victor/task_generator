@@ -69,7 +69,7 @@ class TaskManager:
                     """
             self.db_manager.execute_query(query, params_tuple)
         except Exception as e:
-            print(f"Error udpating task: {e}")
+            print(f"Error updating task: {e}")
             raise RuntimeError("Failed to update the task")
 
     def delete_task(self, task_id):
@@ -96,8 +96,9 @@ class TaskManager:
     def update_task_status(self, task_id, new_status):
         """Updates a task status on the DB."""
         try:
-            query = "UPDATE task SET status = ? WHERE taks_id = ?"
+            query = "UPDATE tasks SET status = ? WHERE task_id = ?"
             self.db_manager.execute_query(query, (new_status, task_id))
         except Exception as e:
-            print(f"Error udpating the task status: {e}")
+            print(f"Error updating the task status: {e}")
             raise RuntimeError("Failed to update the task status")
+        
