@@ -1,3 +1,4 @@
+from datetime import datetime
 import time
 import socket
 import threading
@@ -43,6 +44,27 @@ if __name__ == "__main__":
     controller = MainController(main_view, ws_client)
 
     def on_close():
+        """Gather all ongoing tasks and their actual time_left BEFORE the server closes."""
+        tasks_to_save = []
+        for item in main_view.tree.get_children():
+            values = list(main_view.tree.item(item, "values"))
+            try:
+                if values[5] == "In progress":
+                    time_left = int(
+                            (
+                                datetime.strptime(values[7], "%Y-%m-%d %H:%M:%S.%f")
+                                - datetime.now()
+                            ).total_seconds()
+                            )
+                    tasks_to_save.append({
+                        "task_id": values[0],
+                        "time_left": time_left
+                    })
+            except Exception:
+                continue
+        if tasks_to_save:
+            ws_client.send("save_time_left", {"tasks": tasks_to_save})
+            time.sleep(1)
         # Close the websocket connection
         ws_client.close()
         root.destroy()

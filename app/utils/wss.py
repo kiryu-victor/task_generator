@@ -67,6 +67,10 @@ class WebSocketServer:
             self.task_manager.update_task(params)
         elif action == "delete":
             self.task_manager.delete_task(params["task_id"])
+        elif action == "save_time_left":
+            # Save the current state of the tasks
+            for t in params.get("tasks", []):
+                self.task_manager.update_task_time_left(t["task_id"], t["time_left"])
 
     async def send_state(self, websocket):
         """
