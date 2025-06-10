@@ -45,9 +45,10 @@ It handles creation, modification and deletion operations, saving them back to t
 <ins>**NEW:**</ins>
 > The TaskManager (model) loads the data from the DB (tasks.db). It handles creation, modification and deletion operations.
 It handles creation, modification and deletion operations on the database (DB). With each operation, the view updates with the current data of the DB.
-> Visible countdown is triggered by the server when a new task is created, modified or deleted. Every other time, clients refresh the tasks' "Time left" by themselves, freeing server work.
+Visible countdown is triggered by the server when a new task is created, modified or deleted. Every other time, clients refresh the tasks' "Time left" by themselves, freeing server work.
+
 <ins>**COMMON**</ins>
-tkinter is used for the views (GUI). The MainView is the main window with all the tasks, and then each operation has its own class. The GUIs have buttons that let the user create, modify and delete tasks.
+> tkinter is used for the views (GUI). The MainView is the main window with all the tasks, and then each operation has its own class. The GUIs have buttons that let the user create, modify and delete tasks.
 The controllers (MainController, CreateTaskcontroller...) deal with the inputs, validate data and update the model and view.
 Utils is a folder that has utils.py, that serves to center the app on the screen and validate inputs, and config.json, that has the different machines, materials, speed ranges and ETCs that are used on the inputs.
 
