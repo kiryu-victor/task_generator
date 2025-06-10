@@ -1,3 +1,4 @@
+from datetime import datetime
 from tkinter import messagebox
 import tkinter as tk
 
@@ -17,6 +18,7 @@ class MainController:
         self.sort_order = {}
         # Task instance
         self.task = TaskModel()
+        self.previous_tasks = {}
 
         # Callbacks
         self.view.set_on_create_task(self.open_create_task_view)
@@ -24,6 +26,10 @@ class MainController:
         self.view.set_on_delete_task(self.open_delete_task_view)
         self.view.set_on_column_click(self.sort_table_by_column)
 
+        # Start client-side countdown refresher
+        self._start_countdown_refresher()
+
+    
     # Open windows on button click
     def open_create_task_view(self):
         """Open the create task window and initiates its controller."""
@@ -108,6 +114,7 @@ class MainController:
         self.task.material = self.view.tree.item(selected_item, "values")[3]
         self.task.speed = self.view.tree.item(selected_item, "values")[4]
         self.task.status = self.view.tree.item(selected_item, "values")[5]
+        self.task.time_left = self.view.tree.item(selected_item, "values")[6]
 
         return self.task
 
@@ -122,7 +129,8 @@ class MainController:
             "Machine": 2,
             "Material": 3,
             "Speed": 4,
-            "Status": 5
+            "Status": 5,
+            "Time left": 6
         }
         col_index = column_indices[column]
 
@@ -139,17 +147,15 @@ class MainController:
             # Custom sort: 'On queue' > int > 'Completed'
             # It will sort by the first value on the tuple
             # and after that, by the second one
-                # Example: On queue > 1 > 2 > Completed
+                # Example: On queue > In progress > Completed
             if value == "On queue":
                 return (2, 0)
-            try:
-                return (1, int(value))
-            except (ValueError, TypeError):
-                pass
+            if value == "In progress":
+                return (1, 0)
             if value == "Completed":
                 return (0, 0)
 
-        # If sorting by status, us the custom sort above
+        # If sorting by status, use the custom sort above
         if column == "Status":
             sorted_rows = sorted(
                     rows,
@@ -167,3 +173,31 @@ class MainController:
             self.view.tree.delete(item)
         for row in sorted_rows:
             self.view.tree.insert("", tk.END, values=row)
+
+    # Countdown logic for the client side
+    def _start_countdown_refresher(self):
+        "Start the countdown every 5 seconds after the client connects to the server."
+        self.view.window.after(5000, self._countdown_refresher)
+
+    def _countdown_refresher(self):
+        """
+        Iterate over all the rows and decrement the "Time left" for ongoing tasks.
+        """
+        for item in self.view.tree.get_children():
+            values = list(self.view.tree.item(item, "values"))
+
+            try:
+                if values[5] == "In progress":
+                    time_expected = values[7]
+                    time_left = (
+                            datetime.strptime(time_expected, "%Y-%m-%d %H:%M:%S.%f")
+                            - datetime.now()
+                            ).total_seconds()
+                    seconds_left = int(time_left)
+
+                    values[6] = seconds_left
+                    self.view.tree.item(item, values=values)
+            except Exception:
+                continue
+        # Next refresh in 5 seconds
+        self.view.window.after(5000, self._countdown_refresher)

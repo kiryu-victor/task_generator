@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 import websockets
 import json
 import threading
@@ -9,7 +10,7 @@ from model.taskManager import TaskManager
 from model.taskModel import TaskModel
 from utils.database import DatabaseManager
 
-WS_HOST = '127.0.0.1'
+WS_HOST = "127.0.0.1"
 WS_PORT = 8765
 
 class WebSocketServer:
@@ -18,18 +19,20 @@ class WebSocketServer:
     Handles connections, receives operations from clients, updates DB,
     broadcasts the updated state of the DB.
     """
-    def __init__(self, db_path='tasks.db'):
+    def __init__(self, db_path="tasks.db"):
         # Connected clients
         self.clients = set()
         self.db_manager = DatabaseManager(db_path)
         self.task_manager = TaskManager(self.db_manager)
-        self._countdown_task = None  # Will hold the asyncio task
+
+        self.machines_tasks_dict = {}
+        
 
     async def handler(self, websocket):
         # New client connects
         self.clients.add(websocket)
         # Print the remote address and port
-        if hasattr(websocket, 'remote_address') and websocket.remote_address:
+        if hasattr(websocket, "remote_address") and websocket.remote_address:
             print(f"Client connected from {websocket.remote_address}")
         else:
             print("Client connected (address unknown)")
@@ -46,43 +49,7 @@ class WebSocketServer:
             print()
             self.clients.remove(websocket)
 
-    async def countdown_loop(self):
-        """
-        Start the countdown for tasks with numeric status (ongoing).
-        Start tasks that are "On queue" when a machine is not running.
-        """
-        while True:
-            await self.decrement_numeric_statuses()
-            await self.start_tasks_on_idle_machines()
-            await asyncio.sleep(1)
-
-    async def decrement_numeric_statuses(self):
-        """
-        Decrement the number on the status column every second if the status is a number. 
-        """
-        tasks = self.task_manager.read_all_tasks()
-        updated = False
-        for task in tasks:
-            try:
-                status = task[5]
-                # If the status is number
-                if isinstance(status, int) or (isinstance(status, str) and status.isdigit()):
-                    current_value = int(status)
-                    if current_value > 0:
-                        new_value = current_value - 1
-                        # Change status to "Complete" once the countdown ends
-                        if new_value == 0:
-                            self.task_manager.update_task_status(task[0], "Completed")
-                            await self.start_next_queued_task(task[2])
-                            updated = True
-                        else:
-                            self.task_manager.update_task_status(task[0], str(new_value))
-                            updated = True
-            except Exception as e:
-                print(f"Countdown error for task {task[0]}: {e}")
-        if updated:
-            await self.broadcast_state()
-
+    
     async def process_message(self, message):
         """
         Process a message from a client: create, update, or delete a task.
@@ -90,34 +57,36 @@ class WebSocketServer:
         The query is filled with the params.
         """
         data = json.loads(message)
-        action = data.get('action')
-        params = data.get('params', {})
-        if action == 'create':
+        action = data.get("action")
+        params = data.get("params", {})
+        if action == "create":
             # Convert params dict to TaskModel
             task_model = TaskModel(**params)
             self.task_manager.create_task(task_model)
-            # await self.broadcast_state()
-        elif action == 'update':
+        elif action == "update":
             self.task_manager.update_task(params)
-            # await self.broadcast_state()
-        elif action == 'delete':
-            self.task_manager.delete_task(params['task_id'])
-            # await self.broadcast_state()
+        elif action == "delete":
+            self.task_manager.delete_task(params["task_id"])
 
     async def send_state(self, websocket):
         """
         Send the current state (all tasks) to a client.
-        This exists aside of 'broadcast_state' as it is used only
+        This exists aside of "broadcast_state" as it is used only
         when a new connection happens, getting the current state.
         """
         tasks = self.task_manager.read_all_tasks()
         message = json.dumps(
                 {
-                    'type': 'state',
-                    'tasks': tasks
+                    "type": "state",
+                    "tasks": tasks
                 }
         )
+
+        self.create_machine_queues_dict()
+        self.start_tasks_in_progress()
+        self.start_tasks_on_idle_machines()
         await websocket.send(message)
+
 
     async def broadcast_state(self):
         """
@@ -126,18 +95,23 @@ class WebSocketServer:
         tasks = self.task_manager.read_all_tasks()
         message = json.dumps(
                 {
-                    'type': 'state',
-                    'tasks': tasks
+                    "type": "state",
+                    "tasks": tasks
                 }
         )
         await asyncio.gather(
                 *(
                     client.send(message)
                     for client in self.clients
-                    if getattr(client, 'protocol', None)
+                    if getattr(client, "protocol", None)
                             and client.protocol.state == OPEN
                 )
         )
+
+        self.create_machine_queues_dict()
+        self.start_tasks_on_idle_machines()
+        
+
 
     def run(self):
         """
@@ -147,43 +121,116 @@ class WebSocketServer:
         async def start():
             server = await websockets.serve(self.handler, WS_HOST, WS_PORT)
             print(f"WebSocket server started on ws://{WS_HOST}:{WS_PORT}")
-            await self.start()  # Start the async countdown loop
+            
             await server.wait_closed()
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(start())
         loop.run_forever()
 
-    async def start(self):
-        if self._countdown_task is None:
-            self._countdown_task = asyncio.create_task(self.countdown_loop())
+    def create_machine_queues_dict(self):
+        """
+        Creates a dictionary with machines are keys
+        and "On queue" tasks in a list for each machine. 
+        """
+        tasks = self.task_manager.read_all_tasks()
+        machines_tasks = {}
+        for task in tasks:
+            machine = task[2]
+            task_id = task[0]
+            status = task[5]
+            if machine not in machines_tasks:
+                machines_tasks[machine] = []
+            if status == "On queue":
+                machines_tasks[machine].append(task_id)
+        self.machines_tasks_dict = machines_tasks
 
-    async def start_tasks_on_idle_machines(self):
+    def start_tasks_on_idle_machines(self):
+        """Starts the first task (by order) on an idle machine."""
+        idle_machines = self.search_idle_machines()
+        for m in idle_machines:
+            if self.machines_tasks_dict.get(m, []) != []:
+                task = self.pop_first_task_id(m)
+                self.start_task(task)
+            else:
+                print(f"The machine {m} is empty.")
+
+    def start_tasks_in_progress(self):
+        """Starts the tasks that are "In progress" when the server launches."""
+        tasks = self.search_running_machines()
+        for t in tasks:
+            self.start_task(t[0])
+
+
+
+    def search_idle_machines(self):
+        """Returns a list of machines that have no ongoing tasks."""
         tasks = self.task_manager.read_all_tasks()
         machines = set(task[2] for task in tasks)
-        # Find machines with no running (numeric) task
-        for machine in machines:
-            has_running = any(
-                (isinstance(task[5], int) or (isinstance(task[5], str) and task[5].isdigit())) and int(task[5]) > 0
-                for task in tasks if task[2] == machine
-            )
-            if not has_running:
-                # Start the next queued task if any
-                for task in tasks:
-                    if task[2] == machine and task[5] == "On queue":
-                        time_left = task[6] if task[6] is not None else 1
-                        self.task_manager.update_task_status(task[0], str(time_left))
-                        await self.broadcast_state()
-                        break
+        busy_machines = set()
+        for task in tasks:
+            status = task[5]
+            if status == "In progress":
+                busy_machines.add(task[2])
+        idle_machines = list(machines - busy_machines)
+        return idle_machines
 
-    async def start_next_queued_task(self, machine):
+    def search_running_machines(self):
+        """Searchs the machines with ongoing tasks."""
+        tasks = self.task_manager.read_all_tasks()
+        started_tasks = []
+        for t in tasks:
+            if t[5] == "In progress":
+                started_tasks.append(t)
+        return started_tasks
+
+    def pop_first_task_id(self, machine):
+        """Returns the task_id of the first task on the queue and unqueues it."""
+        tasks = self.machines_tasks_dict
+        return tasks[machine].pop(0)
+    
+    def start_task(self, task_id):
+        """
+        Starts a task by updating its:
+        - time left, status, timestamp_expected_complete
+        Calls the completion function with a timer.
+        """
+        task = self.task_manager.read_task(task_id)
+        time_left = int(task.time_left)
+                
+        self.task_manager.update_task_start_parameters(time_left, task_id)
+        
+        # Use create_task instead of asyncio.run to avoid event loop errors
+        asyncio.create_task(self._call_complete_task(task, time_left))
+        # Notify all clients of the new state
+        asyncio.create_task(self.broadcast_state())
+
+    async def _call_complete_task(self, task, time):
+        """Completes a task after a given time and update timers."""
+        await asyncio.sleep(time)
+        self.update_tasks_timers()
+        self.complete_task(task)
+        self.update_tasks_timers()
+        
+    def complete_task(self, task):
+        """For completion, updates tasks
+        - status (Complete), time_left(""), timestamp_expected_complete(now)"""
+        self.task_manager.udpate_task_complete(task.task_id)
+        # Notify all clients of the new state
+        asyncio.create_task(self.broadcast_state())
+
+
+    def update_tasks_timers(self):
+        """Refreshes tasks to show the remaining time at that point in time."""
         tasks = self.task_manager.read_all_tasks()
         for task in tasks:
-            if task[2] == machine and task[5] == "On queue":
-                time_left = task[6] if task[6] is not None else 1
-                self.task_manager.update_task_status(task[0], str(time_left))
-                break
-
+            if task[5] == "In progress":
+                task_id = task[0]
+                now = datetime.now()
+                time_expected = task[7]
+                new_time_left = datetime.strptime(time_expected, "%Y-%m-%d %H:%M:%S.%f") - now
+                int_new_time_left = int(new_time_left.total_seconds())
+                self.task_manager.update_task_time_left(task_id, int_new_time_left)
 
 
 
@@ -194,7 +241,7 @@ class WebSocketClient:
     receives state updates from the server.
     """
     def __init__(self, on_state_callback, host=WS_HOST, port=WS_PORT):
-        self.uri = f'ws://{host}:{port}'
+        self.uri = f"ws://{host}:{port}"
         # Function to call with new state
         self.on_state_callback = on_state_callback
         self.loop = asyncio.new_event_loop()
@@ -222,14 +269,14 @@ class WebSocketClient:
         try:
             async for message in self.ws:
                 data = json.loads(message)
-                if data.get('type') == 'state':
-                    self.on_state_callback(data['tasks'])
+                if data.get("type") == "state":
+                    self.on_state_callback(data["tasks"])
         except Exception as e:
             print(f"WebSocket receive error: {e}")
 
     def send(self, action, params):
         # Send an operation to the server
-        message = json.dumps({'action': action, 'params': params})
+        message = json.dumps({"action": action, "params": params})
         asyncio.run_coroutine_threadsafe(self.ws.send(message), self.loop)
 
     def close(self):

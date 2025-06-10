@@ -42,9 +42,9 @@ Python, venv, tkinter, ~~CSV~~, SQLite, asyncio, websockets
 It handles creation, modification and deletion operations, saving them back to the CSV file. Until then, the tasks are stored in memory as a list of dictionaries they are sorted into machine-specific queues. It was made like this because it was going to be only one client.
 
 <ins>**NEW:**</ins>
-The TaskManager (model) loads the data from the DB (tasks.db). It handles creation, modification and deletion operations.
+> The TaskManager (model) loads the data from the DB (tasks.db). It handles creation, modification and deletion operations.
 It handles creation, modification and deletion operations on the database (DB). With each operation, the view updates with the current data of the DB.
-
+> Visible countdown is triggered by the server when a new task is created, modified or deleted. Every other time, clients refresh the tasks' "Time left" by themselves, freeing server work.
 <ins>**COMMON**</ins>
 tkinter is used for the views (GUI). The MainView is the main window with all the tasks, and then each operation has its own class. The GUIs have buttons that let the user create, modify and delete tasks.
 The controllers (MainController, CreateTaskcontroller...) deal with the inputs, validate data and update the model and view.
@@ -72,11 +72,15 @@ I have been programming on Java since I started my regulated/certified studies, 
 - [x] "Delete" should work only on "On queue" and ongoing tasks.
   - [x] "On queue": no issue.
   - [x] Ongoing:
-    - [ ] Countdown logic has to be implemented.
-    - [ ] Countdown reaching 0 logic.
-    - [ ] Ongoing task modification or deletion pauses the task until finishing or canceling the operation.
-    - [ ] Ongoing task deletion logic, triggering the next on the list to start.
-    - It has to trigger the next task in case of deletion. Otherwise the remaining countdown should continue as per normal.
+    - [x] Countdown logic has to be implemented.
+    - [x] Countdown reaching 0 logic.
+    ~~- [ ] Ongoing task modification or deletion pauses the task until finishing or canceling the operation.~~
+    - [x] Ongoing task deletion logic, triggering the next on the list to start.
+- [ ] Time left is based on the machining surface.
+  - [ ] Implement size_max and size_min configuration for a piece.
+  - [ ] Randomize the actual size.
+  - [ ] Base the time left on the speed.
+  - [ ] On modification of the speed, the time left changes too.
 > [!NOTE]
 > Deleted the countdown because it won't be used that way when implementing WebSockets (or so I think).
 - [x] Migrate to SQLite.

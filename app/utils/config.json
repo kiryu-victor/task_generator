@@ -7,7 +7,7 @@
                 "Brass",
                 "Ductile iron"
             ],
-            "expected_time": 70
+            "expected_time": 10
         },
         {
             "name": "Carbide milling 2000",
@@ -16,7 +16,7 @@
                 "Titanium",
                 "Tool steel"
             ],
-            "expected_time": 66
+            "expected_time": 13
         },
         {
             "name": "HSS drill 3000",
@@ -26,7 +26,7 @@
                 "Stainless steel",
                 "Tool steel"
             ],
-            "expected_time": 63
+            "expected_time": 16
         }
     ],
 

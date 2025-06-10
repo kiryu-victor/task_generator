@@ -33,7 +33,7 @@ class MainView():
     # Table for displaying tasks
     def _create_table(self):
         # Create a treeview for displaying data
-        columns = ("Task ID", "Time", "Machine", "Material", "Speed", "Status")
+        columns = ("Task ID", "Time", "Machine", "Material", "Speed", "Status", "Time left")
         self.tree = ttk.Treeview(self.main_frame, columns=columns, show="headings", padding=5)
 
         # Headings
@@ -49,6 +49,8 @@ class MainView():
                 command=lambda: self.on_column_click("Speed"))
         self.tree.heading("Status", text="Status",
                 command=lambda: self.on_column_click("Status"))
+        self.tree.heading("Time left", text="Time left",
+                command=lambda: self.on_column_click("Time left"))
 
         # Column widths
         self.tree.column("Task ID", width=100)
@@ -57,6 +59,7 @@ class MainView():
         self.tree.column("Material", width=100)
         self.tree.column("Speed", width=100)
         self.tree.column("Status", width=100)
+        self.tree.column("Time left", width=100)
 
         self.tree.pack(fill=tk.BOTH, expand=True)
 

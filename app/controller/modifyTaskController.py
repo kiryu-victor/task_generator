@@ -65,7 +65,7 @@ class ModifyTaskController:
         """
         Set what comboboxes are enabled.
         Tasks that haven't started ('On queue') yet can be fully modified.
-        Tasks that are ongoing can only have speed modified (recalculated).
+        Tasks that are "In progress" can only have speed modified (recalculated).
         Tasks that are 'Completed' cannot be modified.
         """
         if self.task.status == "On queue":
@@ -74,7 +74,7 @@ class ModifyTaskController:
             self.view.material_combo["state"] = "readonly"
             self.view.speed_entry["state"] = "normal"
         else:
-            # Ongoing task - Only speed can be changed
+            # "In progress" task - Only speed can be changed
             self.view.machine_combo["state"] = "disabled"
             self.view.material_combo["state"] = "disabled"
             self.view.speed_entry["state"] = "normal"
@@ -85,9 +85,9 @@ class ModifyTaskController:
         """
         Modify the selected task.
         Validate if a task can be modified first.
-        Tasks that haven't started ('On queue') yet can be fully modified.
-        Tasks that are ongoing can only have speed modified (recalculated).
-        Tasks that are 'Completed' cannot be modified.
+        Tasks that haven't started ("On queue") yet can be fully modified.
+        Tasks that are "In progress" can only have speed modified (recalculated).
+        Tasks that are "Completed" cannot be modified.
         """
         try:
             if self.task.status == "On queue":
