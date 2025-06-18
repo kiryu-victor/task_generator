@@ -26,7 +26,7 @@ class MainController:
         self.view.set_on_delete_task(self.open_delete_task_view)
         self.view.set_on_column_click(self.sort_table_by_column)
 
-        # Start client-side countdown refresher
+        # Countdown refresher starts with the client
         self._start_countdown_refresher()
 
     
@@ -154,12 +154,27 @@ class MainController:
                 return (1, 0)
             if value == "Completed":
                 return (0, 0)
+            
+        def time_left_sort_key(value):
+            # Same concept as above, but ordering from higher to lower, then no time remaining.
+                # Example: 42 > 21 > 2 > ""
+            if isinstance(value, int):
+                return (1, value)
+            if value == "":
+                return (0, 0)
 
         # If sorting by status, use the custom sort above
         if column == "Status":
             sorted_rows = sorted(
                     rows,
                     key=lambda x: status_sort_key(x[col_index]),
+                    reverse=reverse
+            )
+        # If sorting by time left, use the custom sort above
+        if column == "Time left":
+            sorted_rows = sorted(
+                    rows,
+                    key=lambda x: time_left_sort_key(x[col_index]),
                     reverse=reverse
             )
         else:

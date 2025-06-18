@@ -1,3 +1,4 @@
+from datetime import datetime
 from tkinter import messagebox
 
 from utils.utils import Utils
@@ -8,6 +9,8 @@ class ModifyTaskController:
         self.view = view
         self.ws_client = ws_client
         self.task = task
+        # Used to calculate the delta between opening the view and sending the update
+        self.controller_call_timestamp = datetime.now()
 
         # Load config.json for the machine, materials and speeds settings
         self.config = Utils.load_config()      
@@ -88,6 +91,7 @@ class ModifyTaskController:
         Tasks that haven't started ("On queue") yet can be fully modified.
         Tasks that are "In progress" can only have speed modified (recalculated).
         Tasks that are "Completed" cannot be modified.
+        Recalculates the time left.
         """
         try:
             if self.task.status == "On queue":
@@ -96,19 +100,28 @@ class ModifyTaskController:
             else:
                 machine = self.view.machine_current_value.cget("text")
                 material = self.view.material_current_value.cget("text")
-            speed = self.view.speed_entry.get()
+            # For calculating the new time left after the update
+            old_speed = self.task.speed
+            new_speed = self.view.speed_entry.get()
+
+            # Calculate the delta between opening the view and sending the update
+            current_time = datetime.now()
+            time_passed = self.controller_call_timestamp - current_time
+            new_time_left = int(self.task.time_left) + int(time_passed.total_seconds())
 
             # Dict that will be passed as param
             updating_dict = {
                     "machine": machine,
                     "material": material,
-                    "speed": str(speed),
-                    "task_id": self.task.task_id
+                    "old_speed": str(old_speed),
+                    "new_speed": str(new_speed),
+                    "time_left": new_time_left,
+                    "task_id": self.task.task_id,
             }
 
             # Validate the inputs
             utils = Utils()
-            is_valid, error_message = utils.validate_inputs(machine, material, speed)
+            is_valid, error_message = utils.validate_inputs(machine, material, new_speed)
             if not is_valid:
                 messagebox.showerror("Input error", error_message)
                 return

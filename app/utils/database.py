@@ -19,7 +19,8 @@ class DatabaseManager:
                         speed INTEGER,
                         status TEXT,
                         time_left INTEGER,
-                        timestamp_expected_complete DATETIME
+                        timestamp_expected_complete DATETIME,
+                        surface INTEGER
                     )
                 """
             

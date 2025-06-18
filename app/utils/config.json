@@ -7,7 +7,8 @@
                 "Brass",
                 "Ductile iron"
             ],
-            "expected_time": 10
+            "surface_min": 6000,
+            "surface_max": 12000
         },
         {
             "name": "Carbide milling 2000",
@@ -16,7 +17,8 @@
                 "Titanium",
                 "Tool steel"
             ],
-            "expected_time": 13
+            "surface_min": 12000,
+            "surface_max": 24000
         },
         {
             "name": "HSS drill 3000",
@@ -26,7 +28,8 @@
                 "Stainless steel",
                 "Tool steel"
             ],
-            "expected_time": 16
+            "surface_min": 1200,
+            "surface_max": 2400
         }
     ],
 

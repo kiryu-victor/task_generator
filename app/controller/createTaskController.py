@@ -1,3 +1,4 @@
+import random
 from tkinter import messagebox
 
 from model.taskModel import TaskModel
@@ -23,11 +24,16 @@ class CreateTaskController:
                                                     in self.config["machines"]]
 
     def _create_task(self):
-        """Create a new task on the press of the button and after confirmation."""
+        """
+        Create a new task on the press of the button and after confirmation.
+        Each task has a random amount of surface to achieve blueprint variability.
+        The task is then passed as a dictionary to the WebSocket client to then be sent to the WebSocket server.
+        Clears the fields after and closes the window.
+        """
         # Get the fields values
         machine = self.view.machine_combo.get()
         material = self.view.material_combo.get()
-        speed = self.view.speed_entry.get()
+        speed = int(self.view.speed_entry.get())
 
         # Validate the inputs
         utils = Utils()
@@ -36,21 +42,30 @@ class CreateTaskController:
             messagebox.showerror("Input error", error_message)
             return
         
-        # Get the expected time of completion (ETC) from config.json
-        expected_time = next(
+        # Create a task with a random surface for added variability
+        surface_min = next(
             (
-                machine_config["expected_time"]
+                machine_config["surface_min"]
                 for machine_config in self.config["machines"]
                 if machine_config["name"] == machine
             ), 0
         )
+        surface_max = next(
+            (
+                machine_config["surface_max"]
+                for machine_config in self.config["machines"]
+                if machine_config["name"] == machine
+            ), 0
+        )
+        surface = random.randrange(int(surface_min), int(surface_max))
 
         # Create new task for inserting on the DB
         task = TaskModel(
-            machine = machine,
-            material = material,
-            speed = int(speed),
-            time_left = expected_time
+            machine= machine,
+            material= material,
+            speed= speed,
+            time_left= int(surface / speed),
+            surface= surface,
         )
 
         # Send the task to the server via WebSocket

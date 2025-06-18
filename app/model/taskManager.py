@@ -20,8 +20,9 @@ class TaskManager:
                         speed,
                         status,
                         time_left,
-                        timestamp_expected_complete
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        timestamp_expected_complete,
+                        surface
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """
             self.db_manager.execute_query(query, task_model.to_tuple())
         except Exception as e:
@@ -54,10 +55,18 @@ class TaskManager:
         Modifies the task on the DB.
         Requires a tuple with the values of the fields that are modified.
         """
+        old_speed = int(params_dict["old_speed"])
+        new_speed = int(params_dict["new_speed"])
+        old_time_left = int(params_dict["time_left"])
+        new_time_left = int(old_time_left * old_speed / new_speed)
+        new_expected_complete = datetime.now() + timedelta(seconds=new_time_left)
+
         params_tuple = (
                 params_dict["machine"],
                 params_dict["material"],
-                params_dict["speed"],
+                new_speed,
+                new_time_left,
+                new_expected_complete,
                 params_dict["task_id"],
         )
         try:
@@ -65,7 +74,9 @@ class TaskManager:
                     UPDATE tasks
                     SET machine = ?,
                         material = ?,
-                        speed = ?
+                        speed = ?,
+                        time_left = ?,
+                        timestamp_expected_complete = ?
                     WHERE task_id = ?
                     """
             self.db_manager.execute_query(query, params_tuple)
@@ -98,8 +109,8 @@ class TaskManager:
         """Updates a tasks timestamp_start, status and timestamp_expected_complete."""
         now = datetime.now()
         try:
-            query = "UPDATE tasks SET timestamp_start = ?, status = ?, timestamp_expected_complete = ? WHERE task_id = ?"
-            self.db_manager.execute_query(query, (now, "In progress", now + timedelta(seconds=time_left), task_id))
+            query = "UPDATE tasks SET status = ?, timestamp_expected_complete = ? WHERE task_id = ?"
+            self.db_manager.execute_query(query, ("In progress", now + timedelta(seconds=time_left), task_id))
         except Exception as e:
             print(f"Error updating the task start parameters: {e}")
             raise RuntimeError("Failed to update the task status")
@@ -114,9 +125,9 @@ class TaskManager:
             raise RuntimeError("Failed to update the task status")
 
     def udpate_task_complete(self, task_id):
-        """Updates a tasks status to "Complete" """
+        """Updates a tasks status to "Completed" """
         try:
-            query = "UPDATE tasks SET status = 'Complete', time_left = '', timestamp_expected_complete = ? WHERE task_id = ?"
+            query = "UPDATE tasks SET status = 'Completed', time_left = '', timestamp_expected_complete = ? WHERE task_id = ?"
             self.db_manager.execute_query(query, (datetime.now(), task_id))
         except Exception as e:
             print(f"Error updating the task time left: {e}")

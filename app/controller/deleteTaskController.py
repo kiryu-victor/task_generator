@@ -25,7 +25,11 @@ class DeleteTaskController:
         self.view.status_selected.config(text=self.task.status)
 
     def _delete_task(self):
-        """Delete the selected task."""
+        """
+        Delete the selected task.
+        Tells the WebSocket client to send a signal to the WebSocket server for deleting the task.
+        Closes the window after.
+        """
         self.ws_client.send("delete", {"task_id": self.task.task_id})
         messagebox.showinfo("Success", "Task deleted successfully!")
         
