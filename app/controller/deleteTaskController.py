@@ -18,7 +18,7 @@ class DeleteTaskController:
         so the user can see the data from the task about to be deleted.
         """
         self.view.id_selected.config(text=self.task.task_id)
-        self.view.date_created_selected.config(text=self.task.timestamp_start)
+        self.view.datetime_started_selected.config(text=self.task.timestamp_start)
         self.view.machine_selected.config(text=self.task.machine)
         self.view.material_selected.config(text=self.task.material)
         self.view.speed_selected.config(text=self.task.speed)

@@ -201,9 +201,13 @@ class WebSocketServer:
         """
         task = self.task_manager.read_task(task_id)
         time_left = int(task.time_left)
-                
-        self.task_manager.update_task_start_parameters(time_left, task_id)
+        time_started = task.timestamp_start
         
+        if not time_started or "":
+            self.task_manager.update_task_start_parameters(time_left, task_id)
+        else:
+            self.task_manager.update_task_continue_parameters(time_left, task_id)
+
         # Use create_task instead of asyncio.run to avoid event loop errors
         asyncio.create_task(self._call_complete_task(task, time_left))
         # Notify all clients of the new state

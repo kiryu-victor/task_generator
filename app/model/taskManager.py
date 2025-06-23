@@ -106,13 +106,46 @@ class TaskManager:
             raise RuntimeError("Failed to fetch all the tasks")
         
     def update_task_start_parameters(self, time_left, task_id):
-        """Updates a tasks timestamp_start, status and timestamp_expected_complete."""
+        """
+        Updates a tasks timestamp_start, status and 
+        timestamp_expected_complete.
+        """
         now = datetime.now()
         try:
-            query = "UPDATE tasks SET status = ?, timestamp_expected_complete = ? WHERE task_id = ?"
-            self.db_manager.execute_query(query, ("In progress", now + timedelta(seconds=time_left), task_id))
+            query = """
+                    UPDATE tasks SET timestamp_start = ?, status = ?, 
+                    timestamp_expected_complete = ? 
+                    WHERE task_id = ?
+                    """
+            self.db_manager.execute_query(query, (
+                        now,
+                        "In progress",
+                        now + timedelta(seconds=time_left),
+                        task_id)
+                    )
         except Exception as e:
             print(f"Error updating the task start parameters: {e}")
+            raise RuntimeError("Failed to update the task status")
+        
+    def update_task_continue_parameters(self, time_left, task_id):
+        """
+        Updates a tasks timestamp_start, status and 
+        timestamp_expected_complete.
+        """
+        now = datetime.now()
+        try:
+            query = """
+                    UPDATE tasks SET status = ?, 
+                    timestamp_expected_complete = ? WHERE task_id = ?
+                    """
+            self.db_manager.execute_query(query, (
+                        "In progress",
+                        now + timedelta(seconds=time_left),
+                        task_id
+                        )
+                    )
+        except Exception as e:
+            print(f"Error updating the task continue parameters: {e}")
             raise RuntimeError("Failed to update the task status")
         
     def update_task_time_left(self, task_id, time_left):
@@ -127,7 +160,10 @@ class TaskManager:
     def udpate_task_complete(self, task_id):
         """Updates a tasks status to "Completed" """
         try:
-            query = "UPDATE tasks SET status = 'Completed', time_left = '', timestamp_expected_complete = ? WHERE task_id = ?"
+            query = """
+                    UPDATE tasks SET status = 'Completed', time_left = '', 
+                    timestamp_expected_complete = ? WHERE task_id = ?
+                    """
             self.db_manager.execute_query(query, (datetime.now(), task_id))
         except Exception as e:
             print(f"Error updating the task time left: {e}")

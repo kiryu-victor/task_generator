@@ -115,6 +115,9 @@ class ModifyTaskView(tk.Toplevel):
                 row=4, column=3, sticky=tk.EW, padx=5, pady=5,
         )
 
+        self.form_frame.columnconfigure(0, weight=1)
+        self.form_frame.columnconfigure(1, weight=1)
+
     # Create buttosn after the form
     def _create_buttons(self):
         """Create the buttons for the task creation form"""
@@ -135,6 +138,9 @@ class ModifyTaskView(tk.Toplevel):
                 command=self.destroy
 		)
 
+        self.button_frame.columnconfigure(0, weight=1)
+        self.button_frame.columnconfigure(1, weight=1)
+
         # Pack buttons
         self.modify_button.pack(side=tk.LEFT, padx=15)
-        self.cancel_button.pack(side=tk.RIGHT, padx=20)
+        self.cancel_button.pack(side=tk.RIGHT, padx=15)

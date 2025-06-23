@@ -40,7 +40,7 @@ class ModifyTaskController:
         self.view.material_current_value.config(text=self.task.material)
         self.view.speed_current_value.config(text=self.task.speed)
 
-        if self.task.status.isdigit():
+        if self.task.status == "In progress":
             self._on_started_task_modify()
 
     # Populates the speed range of a task that has already started

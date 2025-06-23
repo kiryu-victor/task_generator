@@ -8,11 +8,11 @@ class MainView():
     def __init__(self, root):
         self.window = root
         self.window.title("Main View")
-        self.window.geometry("1000x600")
+        self.window.geometry("780x500")
         self.window.resizable(False, False)
 
         # Center the window on the screen
-        Utils.center_window_on_screen(self.window, 1000, 600)
+        Utils.center_window_on_screen(self.window, 780, 500)
 
         # Create a frame for the main view
         self.main_frame = ttk.Frame(self.window)
@@ -33,14 +33,14 @@ class MainView():
     # Table for displaying tasks
     def _create_table(self):
         # Create a treeview for displaying data
-        columns = ("Task ID", "Time", "Machine", "Material", "Speed", "Status", "Time left")
+        columns = ("Task ID", "Started at", "Machine", "Material", "Speed", "Status", "Time left")
         self.tree = ttk.Treeview(self.main_frame, columns=columns, show="headings", padding=5)
 
         # Headings
         self.tree.heading("Task ID", text="Task ID",
                 command=lambda: self.on_column_click("Task ID"))
-        self.tree.heading("Time", text="Time",
-                command=lambda: self.on_column_click("Time"))
+        self.tree.heading("Started at", text="Started at",
+                command=lambda: self.on_column_click("Started at"))
         self.tree.heading("Machine", text="Machine",
                 command=lambda: self.on_column_click("Machine"))
         self.tree.heading("Material", text="Material",
@@ -53,13 +53,13 @@ class MainView():
                 command=lambda: self.on_column_click("Time left"))
 
         # Column widths
-        self.tree.column("Task ID", width=100)
-        self.tree.column("Time", width=100)
-        self.tree.column("Machine", width=100)
-        self.tree.column("Material", width=100)
-        self.tree.column("Speed", width=100)
-        self.tree.column("Status", width=100)
-        self.tree.column("Time left", width=100)
+        self.tree.column("Task ID", width=115)
+        self.tree.column("Started at", width=175)
+        self.tree.column("Machine", width=155)
+        self.tree.column("Material", width=105)
+        self.tree.column("Speed", width=70)
+        self.tree.column("Status", width=70)
+        self.tree.column("Time left", width=70)
 
         self.tree.pack(fill=tk.BOTH, expand=True)
 

@@ -8,11 +8,11 @@ class DeleteTaskView(tk.Toplevel):
 	def __init__(self, root):
 		super().__init__(root)
 		self.title("Delete task")
-		self.geometry("240x300")
+		self.geometry("260x280")
 		self.resizable(False, False)
 
 		# Center the window on the screen
-		Utils.center_window_on_screen(self, 240, 300)
+		Utils.center_window_on_screen(self, 260, 280)
 
 		# Make it a modal window
 		self.grab_set()
@@ -40,7 +40,7 @@ class DeleteTaskView(tk.Toplevel):
 		Labels on the left.
 		Values on the right."""
 		# Create a frame for the task creation form
-		self.form_frame = ttk.Frame(self.main_frame, padding=10)
+		self.form_frame = ttk.Frame(self.main_frame, padding=5)
 		self.form_frame.pack(fill=tk.BOTH, expand=True)
 		
 		self.id_label = ttk.Label(self.form_frame, text="ID")
@@ -48,14 +48,14 @@ class DeleteTaskView(tk.Toplevel):
 		self.id_selected = ttk.Label(self.form_frame)
 		self.id_selected.grid(row=0, column=1, sticky=tk.E, padx=5, pady=5)
 		
-		self.date_created_label = ttk.Label(self.form_frame,
-				text="Date created"
+		self.datetime_started_label = ttk.Label(self.form_frame,
+				text="Started on"
 		)
-		self.date_created_label.grid(row=1, column=0, sticky=tk.W,
+		self.datetime_started_label.grid(row=1, column=0, sticky=tk.W,
 				padx=5, pady=5
 		)
-		self.date_created_selected = ttk.Label(self.form_frame)
-		self.date_created_selected.grid(row=1, column=1, sticky=tk.E,
+		self.datetime_started_selected = ttk.Label(self.form_frame)
+		self.datetime_started_selected.grid(row=1, column=1, sticky=tk.E,
 				padx=5, pady=5
 		)
 		
@@ -79,9 +79,11 @@ class DeleteTaskView(tk.Toplevel):
 		self.status_selected = ttk.Label(self.form_frame)
 		self.status_selected.grid(row=5, column=1, sticky=tk.E, padx=5, pady=5)
 
+		self.form_frame.columnconfigure(0, weight=1)
+		self.form_frame.columnconfigure(1, weight=1)
 
 	def _create_buttons(self):
-		self.button_frame = ttk.Frame(self.main_frame, padding=10)
+		self.button_frame = ttk.Frame(self.main_frame, padding=5)
 		self.button_frame.pack(fill=tk.X, side=tk.BOTTOM)
 
 		self.delete_button = tk.Button(self.button_frame, text="Delete",
@@ -96,6 +98,9 @@ class DeleteTaskView(tk.Toplevel):
 				command=self.destroy
 		)
 
+		self.button_frame.columnconfigure(0, weight=1)
+		self.button_frame.columnconfigure(1, weight=1)
+
 		# Pack buttons
 		self.delete_button.pack(side=tk.LEFT, padx=5)
-		self.cancel_button.pack(side=tk.RIGHT, padx=10)
+		self.cancel_button.pack(side=tk.RIGHT, padx=5)

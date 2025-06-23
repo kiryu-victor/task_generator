@@ -110,6 +110,7 @@ class MainController:
         by the selected_item and passing them to the attribs on the task.
         """ 
         self.task.task_id = self.view.tree.item(selected_item, "values")[0]
+        self.task.timestamp_start = self.view.tree.item(selected_item, "values")[1]
         self.task.machine = self.view.tree.item(selected_item, "values")[2]
         self.task.material = self.view.tree.item(selected_item, "values")[3]
         self.task.speed = self.view.tree.item(selected_item, "values")[4]
