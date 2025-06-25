@@ -126,7 +126,7 @@ class MainController:
         """
         column_indices = {
             "Task ID": 0,
-            "Time": 1,
+            "Started at": 1,
             "Machine": 2,
             "Material": 3,
             "Speed": 4,
@@ -143,6 +143,14 @@ class MainController:
         # Toggles the order on click
         self.sort_order[column] = not self.sort_order.get(column, False)
         reverse = not self.sort_order[column]
+
+
+        def started_at_sort_key(value):
+            #Custom sort for when it's empty and when it has values
+            if value == "":
+                return (0,0)
+            else:
+                return (1, value)
 
         def status_sort_key(value):
             # Custom sort: 'On queue' > int > 'Completed'
@@ -164,15 +172,22 @@ class MainController:
             if value == "":
                 return (0, 0)
 
+        # If sorting by started at, use the custom sort above
+        if column == "Started at":
+            sorted_rows = sorted(
+                    rows,
+                    key=lambda x: started_at_sort_key(x[col_index]),
+                    reverse=reverse
+            )        
         # If sorting by status, use the custom sort above
-        if column == "Status":
+        elif column == "Status":
             sorted_rows = sorted(
                     rows,
                     key=lambda x: status_sort_key(x[col_index]),
                     reverse=reverse
             )
         # If sorting by time left, use the custom sort above
-        if column == "Time left":
+        elif column == "Time left":
             sorted_rows = sorted(
                     rows,
                     key=lambda x: time_left_sort_key(x[col_index]),
